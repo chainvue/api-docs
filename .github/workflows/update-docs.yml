@@ -36,7 +36,12 @@ jobs:
             exit 1
           fi
 
+          # Add/update server URL to point to api.chainvue.io
+          jq '.servers = [{"url": "https://api.chainvue.io", "description": "ChainVue API Production"}]' openapi.json > openapi.json.tmp
+          mv openapi.json.tmp openapi.json
+
           echo "✓ Successfully fetched and validated OpenAPI spec"
+          echo "✓ Configured API server URL: https://api.chainvue.io"
 
       - name: Check for changes
         id: check_changes
