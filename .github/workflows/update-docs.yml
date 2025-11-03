@@ -1,0 +1,88 @@
+name: Update API Documentation
+
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual update'
+        required: false
+        default: 'Manual update triggered'
+
+  repository_dispatch:
+    types: [api-updated]
+
+  schedule:
+    # Backup: Auto-sync every 6 hours in case webhook fails
+    - cron: '0 */6 * * *'
+
+jobs:
+  update-spec:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fetch latest OpenAPI spec
+        run: |
+          echo "Fetching OpenAPI spec from https://api.chainvue.io/api-docs/openapi.json"
+          curl -f -L https://api.chainvue.io/api-docs/openapi.json -o openapi.json
+
+          # Validate it's valid JSON
+          if ! jq empty openapi.json 2>/dev/null; then
+            echo "Error: Downloaded file is not valid JSON"
+            exit 1
+          fi
+
+          echo "✓ Successfully fetched and validated OpenAPI spec"
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if [ ! -f openapi.json ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "reason=Initial spec download" >> $GITHUB_OUTPUT
+          elif ! diff -q openapi.json openapi.json.new 2>/dev/null; then
+            mv openapi.json.new openapi.json 2>/dev/null || true
+            if git diff --quiet openapi.json; then
+              echo "changed=false" >> $GITHUB_OUTPUT
+              echo "No changes detected in API spec"
+            else
+              echo "changed=true" >> $GITHUB_OUTPUT
+              echo "reason=API spec updated" >> $GITHUB_OUTPUT
+              echo "✓ Changes detected in API spec"
+            fi
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "No changes detected in API spec"
+          fi
+
+      - name: Commit and push changes
+        if: steps.check_changes.outputs.changed == 'true'
+        run: |
+          git config user.name "ChainVue Bot"
+          git config user.email "bot@chainvue.io"
+
+          git add openapi.json
+
+          COMMIT_MSG="chore: update API spec"
+          if [ -n "${{ github.event.inputs.reason }}" ]; then
+            COMMIT_MSG="$COMMIT_MSG - ${{ github.event.inputs.reason }}"
+          elif [ -n "${{ steps.check_changes.outputs.reason }}" ]; then
+            COMMIT_MSG="$COMMIT_MSG - ${{ steps.check_changes.outputs.reason }}"
+          fi
+
+          git commit -m "$COMMIT_MSG" -m "Updated from https://api.chainvue.io/api-docs/openapi.json" -m "[skip ci]"
+          git push
+
+          echo "✓ Changes committed and pushed successfully"
+
+      - name: Summary
+        run: |
+          if [ "${{ steps.check_changes.outputs.changed }}" == "true" ]; then
+            echo "✅ API documentation updated successfully"
+          else
+            echo "ℹ️ No changes detected - documentation is up to date"
+          fi

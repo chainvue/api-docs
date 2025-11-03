@@ -1,0 +1,19 @@
+# Auto detect text files and normalize line endings
+* text=auto
+
+# JSON files
+*.json text eol=lf
+
+# HTML files
+*.html text eol=lf
+
+# YAML files
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Markdown
+*.md text eol=lf
+
+# Git config files
+.gitattributes text eol=lf
+.gitignore text eol=lf
