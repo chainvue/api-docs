@@ -79,10 +79,32 @@ jobs:
 
           echo "✓ Changes committed and pushed successfully"
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel
+
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build Project Artifacts
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy to Vercel
+        id: deploy
+        run: |
+          DEPLOYMENT_URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
+          echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+          echo "✓ Deployed to Vercel: $DEPLOYMENT_URL"
+
       - name: Summary
         run: |
           if [ "${{ steps.check_changes.outputs.changed }}" == "true" ]; then
-            echo "✅ API documentation updated successfully"
+            echo "✅ API documentation updated and deployed successfully"
           else
-            echo "ℹ️ No changes detected - documentation is up to date"
+            echo "ℹ️ No changes detected - redeployed existing documentation"
           fi
+          echo "🚀 Live at: ${{ steps.deploy.outputs.url }}"

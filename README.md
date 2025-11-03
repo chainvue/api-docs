@@ -22,7 +22,55 @@ This repository automatically syncs and displays the ChainVue API documentation 
 1. **Automatic Sync**: GitHub Actions fetches the latest OpenAPI spec every 6 hours
 2. **Manual Updates**: Trigger updates manually via GitHub Actions UI
 3. **Webhook Support**: External systems can trigger updates via repository dispatch
-4. **Auto-Deploy**: Changes automatically deploy to your hosting platform
+4. **Auto-Deploy**: Automatically deploys to Vercel on every run
+
+## Setup
+
+### Initial Vercel Deployment
+
+1. **Deploy to Vercel** (one-time setup):
+   ```bash
+   cd api-docs
+   vercel --prod
+   ```
+   Or use: [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/chainvue/api-docs)
+
+2. **Get Vercel Credentials**:
+   ```bash
+   # Get your Vercel token
+   # Go to: https://vercel.com/account/tokens
+   # Create a new token
+
+   # Get project details
+   vercel link
+   cat .vercel/project.json
+   ```
+
+   This will show you:
+   - `projectId` (your VERCEL_PROJECT_ID)
+   - `orgId` (your VERCEL_ORG_ID)
+
+3. **Add GitHub Secrets**:
+
+   Go to: https://github.com/chainvue/api-docs/settings/secrets/actions
+
+   Add these secrets:
+   - `VERCEL_TOKEN`: Your Vercel token from step 2
+   - `VERCEL_ORG_ID`: Your org ID from `.vercel/project.json`
+   - `VERCEL_PROJECT_ID`: Your project ID from `.vercel/project.json`
+
+4. **Test the workflow**:
+   - Go to Actions tab
+   - Run "Update API Documentation" workflow manually
+   - It should fetch the spec and deploy to Vercel
+
+### GitHub Secrets Required
+
+| Secret Name | Description | How to Get |
+|-------------|-------------|------------|
+| `VERCEL_TOKEN` | Vercel authentication token | https://vercel.com/account/tokens |
+| `VERCEL_ORG_ID` | Your Vercel organization ID | From `.vercel/project.json` after `vercel link` |
+| `VERCEL_PROJECT_ID` | Your Vercel project ID | From `.vercel/project.json` after `vercel link` |
 
 ## Triggering Updates
 
@@ -146,7 +194,7 @@ The GitHub Actions workflow:
 3. **Validates**: Ensures the spec is valid JSON
 4. **Compares**: Checks for changes
 5. **Commits**: Pushes changes if spec updated
-6. **Deploys**: Hosting platform auto-deploys on commit
+6. **Deploys**: Automatically deploys to Vercel (whether changed or not)
 
 ## Troubleshooting
 
@@ -167,6 +215,14 @@ The GitHub Actions workflow:
 - Verify GitHub token has correct permissions (`repo` scope)
 - Check token is not expired
 - Verify the repository name is correct
+
+### Vercel deployment fails
+
+- Verify all three secrets are set correctly in GitHub
+- Check that `VERCEL_TOKEN` is not expired
+- Ensure project is linked: run `vercel link` locally
+- Check workflow logs for specific error messages
+- Verify Vercel project exists and is accessible
 
 ## Support
 
