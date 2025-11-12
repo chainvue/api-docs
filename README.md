@@ -1,12 +1,12 @@
-# ChainVue API Documentation
+# api.devdude.io docs
 
 Beautiful, interactive API documentation powered by [Scalar](https://github.com/scalar/scalar).
 
 ## Overview
 
-This repository automatically syncs and displays the ChainVue API documentation from our OpenAPI specification.
+This repository automatically syncs and displays the api.devdude.io documentation from our OpenAPI specification.
 
-- **API Spec Source**: `https://api.chainvue.io/api-docs/openapi.json`
+- **API Spec Source**: `https://api.devdude.io/openapi.json`
 - **Live Docs**: (Will be available after deployment)
 
 ## Features
@@ -33,7 +33,7 @@ This repository automatically syncs and displays the ChainVue API documentation 
    cd api-docs
    vercel --prod
    ```
-   Or use: [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/chainvue/api-docs)
+   Or use: [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/devdudeio/api-docs)
 
 2. **Get Vercel Credentials**:
    ```bash
@@ -52,7 +52,7 @@ This repository automatically syncs and displays the ChainVue API documentation 
 
 3. **Add GitHub Secrets**:
 
-   Go to: https://github.com/chainvue/api-docs/settings/secrets/actions
+   Go to: https://github.com/devdudeio/api-docs/settings/secrets/actions
 
    Add these secrets:
    - `VERCEL_TOKEN`: Your Vercel token from step 2
@@ -85,7 +85,7 @@ This repository automatically syncs and displays the ChainVue API documentation 
 
 ```bash
 curl -X POST \
-  https://api.github.com/repos/chainvue/api-docs/dispatches \
+  https://api.github.com/repos/devdudeio/api-docs/dispatches \
   -H "Authorization: token YOUR_GITHUB_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"event_type":"api-updated"}'
@@ -106,7 +106,7 @@ To preview the documentation locally:
 
 ```bash
 # Clone the repository
-git clone https://github.com/chainvue/api-docs.git
+git clone https://github.com/devdudeio/api-docs.git
 cd api-docs
 
 # Serve with any static file server
@@ -122,7 +122,7 @@ python3 -m http.server 8000
 
 ### Vercel (Recommended)
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/chainvue/api-docs)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/devdudeio/api-docs)
 
 ```bash
 # Install Vercel CLI
@@ -134,7 +134,7 @@ vercel --prod
 
 ### Netlify
 
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/chainvue/api-docs)
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/devdudeio/api-docs)
 
 ```bash
 # Install Netlify CLI
@@ -151,7 +151,7 @@ netlify deploy --prod
 3. Choose `main` branch and `/` (root)
 4. Save
 
-Your docs will be available at: `https://chainvue.github.io/api-docs/`
+Your docs will be available at: `https://devdudeio.github.io/api-docs/`
 
 ## Customization
 
@@ -200,7 +200,7 @@ The GitHub Actions workflow:
 
 ### Workflow fails to fetch spec
 
-- Check if `https://api.chainvue.io/api-docs/openapi.json` is accessible
+- Check if `https://api.devdude.io/openapi.json` is accessible
 - Verify the API is not rate-limiting GitHub Actions
 - Check workflow logs in Actions tab
 
