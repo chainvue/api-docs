@@ -2716,7 +2716,7 @@
     }
   },
   "info": {
-    "title": "ChainVue API (Verus Testnet MVP)",
+    "title": "api.devdude.io",
     "description": "Developer-first API for Verus identities, transactions, and blocks.\n\nFeatures:\n- **Semantic tagging** for transaction categorization\n- **HATEOAS links** for resource discovery\n- **Enhanced filtering** with pagination\n- **Mock data** for rapid development\n\nPerfect foundation for analytics, automation, and AI-powered blockchain exploration.",
     "version": "0.3.0",
     "contact": {}
