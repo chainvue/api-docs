@@ -1638,9 +1638,9 @@
             "name": "system_id",
             "required": false,
             "in": "query",
-            "description": "Filter by system ID",
+            "description": "Filter by system ID (i-address)",
             "schema": {
-              "example": "VRSCTEST",
+              "example": "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq",
               "type": "string"
             }
           },
@@ -1976,9 +1976,9 @@
             "name": "system_id",
             "required": false,
             "in": "query",
-            "description": "System/PBaaS chain context for short name resolution",
+            "description": "System/PBaaS chain context for short name resolution (i-address)",
             "schema": {
-              "example": "iExaMPLe",
+              "example": "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq",
               "type": "string"
             }
           },
@@ -2689,7 +2689,7 @@
     "/v1/chain-metadata": {
       "get": {
         "operationId": "ChainsController_getChainMetadata",
-        "summary": "List available chains and PBaaS chains",
+        "summary": "List available chains with current block heights",
         "parameters": [],
         "responses": {
           "200": {
@@ -4030,24 +4030,30 @@
         "properties": {
           "chain_id": {
             "type": "string",
-            "description": "Chain ID",
+            "description": "Chain ID (i-address)",
             "example": "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq"
           },
-          "name": {
+          "chain_name": {
             "type": "string",
-            "description": "Chain name",
-            "example": "VRSCTEST"
+            "description": "Human-readable chain name",
+            "example": "Verus Testnet"
           },
-          "is_pbaas": {
-            "type": "boolean",
-            "description": "Whether this is a PBaaS chain",
-            "example": false
+          "network": {
+            "type": "string",
+            "description": "Network type",
+            "example": "mainnet"
+          },
+          "blocks": {
+            "type": "number",
+            "description": "Current block height for this chain",
+            "example": 4500000
           }
         },
         "required": [
           "chain_id",
-          "name",
-          "is_pbaas"
+          "chain_name",
+          "network",
+          "blocks"
         ]
       }
     }
