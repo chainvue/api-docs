@@ -67,8 +67,8 @@ jobs:
       - name: Commit and push changes
         if: steps.check_changes.outputs.changed == 'true'
         run: |
-          git config user.name "Devdude Bot"
-          git config user.email "bot@devdude.io"
+          git config user.name "ChainVue Bot"
+          git config user.email "bot@chainvue.io"
 
           git add openapi.json
 
