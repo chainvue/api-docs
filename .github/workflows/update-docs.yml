@@ -27,8 +27,8 @@ jobs:
 
       - name: Fetch latest OpenAPI spec
         run: |
-          echo "Fetching OpenAPI spec from https://api.chainvue.io/api-docs/openapi.json"
-          curl -f -L https://api.chainvue.io/api-docs/openapi.json -o openapi.json
+          echo "Fetching OpenAPI spec from https://api.devdude.io/openapi.json"
+          curl -f -L https://api.devdude.io/openapi.json -o openapi.json
 
           # Validate it's valid JSON
           if ! jq empty openapi.json 2>/dev/null; then
@@ -36,12 +36,12 @@ jobs:
             exit 1
           fi
 
-          # Add/update server URL to point to api.chainvue.io
-          jq '.servers = [{"url": "https://api.chainvue.io", "description": "ChainVue API Production"}]' openapi.json > openapi.json.tmp
+          # Add/update server URL to point to api.devdude.io
+          jq '.servers = [{"url": "https://api.devdude.io", "description": "Devdude API Production"}]' openapi.json > openapi.json.tmp
           mv openapi.json.tmp openapi.json
 
           echo "✓ Successfully fetched and validated OpenAPI spec"
-          echo "✓ Configured API server URL: https://api.chainvue.io"
+          echo "✓ Configured API server URL: https://api.devdude.io"
 
       - name: Check for changes
         id: check_changes
@@ -67,8 +67,8 @@ jobs:
       - name: Commit and push changes
         if: steps.check_changes.outputs.changed == 'true'
         run: |
-          git config user.name "ChainVue Bot"
-          git config user.email "bot@chainvue.io"
+          git config user.name "Devdude Bot"
+          git config user.email "bot@devdude.io"
 
           git add openapi.json
 
@@ -79,7 +79,7 @@ jobs:
             COMMIT_MSG="$COMMIT_MSG - ${{ steps.check_changes.outputs.reason }}"
           fi
 
-          git commit -m "$COMMIT_MSG" -m "Updated from https://api.chainvue.io/api-docs/openapi.json" -m "[skip ci]"
+          git commit -m "$COMMIT_MSG" -m "Updated from https://api.devdude.io/openapi.json" -m "[skip ci]"
           git push
 
           echo "✓ Changes committed and pushed successfully"
