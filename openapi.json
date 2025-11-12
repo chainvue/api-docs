@@ -1,204 +1,172 @@
 {
-  "openapi": "3.0.3",
-  "info": {
-    "title": "ChainVue - Verus Multi-Chain Blockchain API",
-    "description": "REST API for accessing Verus blockchain data across multiple chains. Supports blocks, transactions, addresses, VerusID identities, and multi-currency tracking. All endpoints support chain_id parameter for multi-chain queries.",
-    "contact": {
-      "name": "API Support",
-      "url": "https://verus.io"
-    },
-    "license": {
-      "name": "MIT"
-    },
-    "version": "0.1.0"
-  },
+  "openapi": "3.1.0",
   "paths": {
-    "/health": {
+    "/v1/blocks": {
       "get": {
-        "tags": [
-          "health"
-        ],
-        "operationId": "health_check",
-        "responses": {
-          "200": {
-            "description": "API is healthy",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/addresses/{address}": {
-      "get": {
-        "tags": [
-          "addresses"
-        ],
-        "operationId": "get_address",
+        "operationId": "BlocksController_list",
+        "summary": "List blocks with filters and cursor-based pagination",
         "parameters": [
           {
-            "name": "address",
-            "in": "path",
-            "description": "Blockchain address",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
             "name": "chain_id",
-            "in": "query",
             "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Address information",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Address"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Address not found"
-          }
-        },
-        "security": [
-          {
-            "api_key": []
-          }
-        ]
-      }
-    },
-    "/v1/addresses/{address}/balance": {
-      "get": {
-        "tags": [
-          "addresses"
-        ],
-        "operationId": "get_address_balance",
-        "parameters": [
-          {
-            "name": "address",
-            "in": "path",
-            "description": "Blockchain address",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "chain_id",
             "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Address balance",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "api_key": []
-          }
-        ]
-      }
-    },
-    "/v1/addresses/{address}/transactions": {
-      "get": {
-        "tags": [
-          "addresses"
-        ],
-        "operationId": "get_address_transactions",
-        "parameters": [
-          {
-            "name": "address",
-            "in": "path",
-            "description": "Blockchain address",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "chain_id",
-            "in": "query",
-            "required": false,
+            "description": "Chain ID (defaults to Verus Testnet)",
             "schema": {
               "type": "string"
             }
           },
           {
             "name": "limit",
-            "in": "query",
             "required": false,
+            "in": "query",
+            "description": "Number of results to return (1-5000, default 25)",
             "schema": {
-              "type": "integer",
-              "format": "int64"
+              "type": "number"
             }
           },
           {
-            "name": "offset",
+            "name": "cursor",
+            "required": false,
             "in": "query",
+            "description": "Opaque pagination cursor",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "description": "Sort order",
+            "schema": {
+              "enum": [
+                "height_desc",
+                "height_asc",
+                "timestamp_desc",
+                "timestamp_asc"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "since",
+            "required": false,
+            "in": "query",
+            "description": "Inclusive lower bound for block timestamp (ISO 8601). timestamp >= since",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "until",
+            "required": false,
+            "in": "query",
+            "description": "Exclusive upper bound for block timestamp (ISO 8601). timestamp < until",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "min_height",
+            "required": false,
+            "in": "query",
+            "description": "Inclusive lower bound for block height",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "max_height",
+            "required": false,
+            "in": "query",
+            "description": "Inclusive upper bound for block height",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "If-None-Match",
+            "in": "header",
+            "description": "Send previous ETag to receive 304 Not Modified when unchanged",
             "required": false,
             "schema": {
-              "type": "integer",
-              "format": "int64"
+              "type": "string"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Address transactions",
+            "description": "Blocks page retrieved successfully",
+            "headers": {
+              "ETag": {
+                "description": "Entity tag for conditional requests (use with If-None-Match)",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Cache-Control": {
+                "description": "HTTP caching policy for this response",
+                "schema": {
+                  "type": "string"
+                },
+                "example": "public, max-age=10"
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Transaction"
-                  }
+                  "$ref": "#/components/schemas/PaginatedBlocksDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "headers": {
+              "X-RateLimit-Limit": {
+                "description": "max requests in the window",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "remaining requests",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "window reset epoch seconds",
+                "schema": {
+                  "type": "integer"
                 }
               }
             }
           }
         },
-        "security": [
-          {
-            "api_key": []
-          }
+        "tags": [
+          "Blocks"
         ]
       }
     },
     "/v1/blocks/latest": {
       "get": {
-        "tags": [
-          "blocks"
-        ],
-        "operationId": "get_latest_block",
+        "operationId": "BlocksController_latest",
+        "summary": "Get the latest block for a chain",
         "parameters": [
           {
             "name": "chain_id",
+            "required": false,
             "in": "query",
+            "description": "Chain ID (defaults to Verus Testnet)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-None-Match",
+            "in": "header",
+            "description": "Send previous ETag to receive 304 Not Modified when unchanged",
             "required": false,
             "schema": {
               "type": "string"
@@ -207,45 +175,79 @@
         ],
         "responses": {
           "200": {
-            "description": "Latest block found",
-            "content": {
-              "application/json": {
+            "description": "Latest block retrieved successfully",
+            "headers": {
+              "ETag": {
+                "description": "Entity tag for conditional requests (use with If-None-Match)",
                 "schema": {
-                  "$ref": "#/components/schemas/Block"
+                  "type": "string"
                 }
+              },
+              "Cache-Control": {
+                "description": "HTTP caching policy for this response",
+                "schema": {
+                  "type": "string"
+                },
+                "example": "public, max-age=10, s-maxage=10, must-revalidate"
               }
             }
           },
-          "404": {
-            "description": "No blocks found"
+          "429": {
+            "description": "Too many requests",
+            "headers": {
+              "X-RateLimit-Limit": {
+                "description": "max requests in the window",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "remaining requests",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "window reset epoch seconds",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
           }
         },
-        "security": [
-          {
-            "api_key": []
-          }
+        "tags": [
+          "Blocks"
         ]
       }
     },
     "/v1/blocks/{height_or_hash}": {
       "get": {
-        "tags": [
-          "blocks"
-        ],
-        "operationId": "get_block",
+        "operationId": "BlocksController_one",
+        "summary": "Get a specific block by height or hash",
         "parameters": [
           {
             "name": "height_or_hash",
+            "required": true,
             "in": "path",
-            "description": "Block height (numeric) or block hash",
-            "required": true,
+            "description": "Block height (digits) or 64-char lowercase hex hash",
             "schema": {
               "type": "string"
             }
           },
           {
             "name": "chain_id",
+            "required": false,
             "in": "query",
+            "description": "Chain ID (defaults to Verus Testnet)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-None-Match",
+            "in": "header",
+            "description": "Send previous ETag to receive 304 Not Modified when unchanged",
             "required": false,
             "schema": {
               "type": "string"
@@ -254,123 +256,142 @@
         ],
         "responses": {
           "200": {
-            "description": "Block found",
-            "content": {
-              "application/json": {
+            "description": "Block details retrieved successfully",
+            "headers": {
+              "ETag": {
+                "description": "Entity tag for conditional requests (use with If-None-Match)",
                 "schema": {
-                  "$ref": "#/components/schemas/Block"
+                  "type": "string"
                 }
+              },
+              "Cache-Control": {
+                "description": "HTTP caching policy for this response",
+                "schema": {
+                  "type": "string"
+                },
+                "example": "public, max-age=31536000, immutable"
               }
             }
           },
-          "404": {
-            "description": "Block not found"
-          }
-        },
-        "security": [
-          {
-            "api_key": []
-          }
-        ]
-      }
-    },
-    "/v1/chains": {
-      "get": {
-        "tags": [
-          "chains"
-        ],
-        "operationId": "list_chains",
-        "responses": {
-          "200": {
-            "description": "List of indexed chains",
-            "content": {
-              "application/json": {
+          "429": {
+            "description": "Too many requests",
+            "headers": {
+              "X-RateLimit-Limit": {
+                "description": "max requests in the window",
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Chain"
-                  }
+                  "type": "integer"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "remaining requests",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "window reset epoch seconds",
+                "schema": {
+                  "type": "integer"
                 }
               }
             }
-          },
-          "404": {
-            "description": "No chains found"
           }
         },
-        "security": [
-          {
-            "api_key": []
-          }
+        "tags": [
+          "Blocks"
         ]
       }
     },
-    "/v1/identities": {
+    "/v1/transactions": {
       "get": {
-        "tags": [
-          "identities"
-        ],
-        "operationId": "search_identities",
+        "operationId": "TransactionsController_list",
+        "summary": "List transactions with cursor pagination",
         "parameters": [
           {
             "name": "chain_id",
-            "in": "query",
             "required": false,
+            "in": "query",
+            "description": "Chain ID (defaults to Verus Testnet)",
             "schema": {
               "type": "string"
             }
           },
           {
-            "name": "search",
-            "in": "query",
+            "name": "limit",
             "required": false,
+            "in": "query",
+            "description": "Number of items per page (1-5000, default 25)",
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "number"
             }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "List of identities",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Identity"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
+          },
           {
-            "api_key": []
-          }
-        ]
-      }
-    },
-    "/v1/identities/{name_or_address}": {
-      "get": {
-        "tags": [
-          "identities"
-        ],
-        "operationId": "get_identity",
-        "parameters": [
-          {
-            "name": "name_or_address",
-            "in": "path",
-            "description": "Identity name (e.g., Mike@) or i-address",
-            "required": true,
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "description": "Opaque cursor string for pagination",
             "schema": {
               "type": "string"
             }
           },
           {
-            "name": "chain_id",
+            "name": "sort",
+            "required": false,
             "in": "query",
+            "description": "Sort order: timestamp_desc (default) or timestamp_asc",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "since",
+            "required": false,
+            "in": "query",
+            "description": "ISO 8601 timestamp, inclusive lower bound",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "until",
+            "required": false,
+            "in": "query",
+            "description": "ISO 8601 timestamp, exclusive upper bound",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "min_height",
+            "required": false,
+            "in": "query",
+            "description": "Minimum block height (inclusive)",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "max_height",
+            "required": false,
+            "in": "query",
+            "description": "Maximum block height (inclusive)",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated transaction types to filter",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-None-Match",
+            "in": "header",
+            "description": "Send previous ETag to receive 304 Not Modified when unchanged",
             "required": false,
             "schema": {
               "type": "string"
@@ -379,141 +400,86 @@
         ],
         "responses": {
           "200": {
-            "description": "Identity found",
+            "description": "Paginated transactions list",
+            "headers": {
+              "ETag": {
+                "description": "Entity tag for conditional requests (use with If-None-Match)",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Cache-Control": {
+                "description": "HTTP caching policy for this response",
+                "schema": {
+                  "type": "string"
+                },
+                "example": "public, max-age=10"
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Identity"
+                  "$ref": "#/components/schemas/PaginatedTransactionsDto"
                 }
               }
             }
           },
-          "404": {
-            "description": "Identity not found"
-          }
-        },
-        "security": [
-          {
-            "api_key": []
-          }
-        ]
-      }
-    },
-    "/v1/search": {
-      "get": {
-        "tags": [
-          "search"
-        ],
-        "operationId": "universal_search",
-        "parameters": [
-          {
-            "name": "q",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Search results",
-            "content": {
-              "application/json": {
+          "429": {
+            "description": "Too many requests",
+            "headers": {
+              "X-RateLimit-Limit": {
+                "description": "max requests in the window",
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/SearchResult"
-                  }
+                  "type": "integer"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "remaining requests",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "window reset epoch seconds",
+                "schema": {
+                  "type": "integer"
                 }
               }
             }
           }
         },
-        "security": [
-          {
-            "api_key": []
-          }
-        ]
-      }
-    },
-    "/v1/status": {
-      "get": {
         "tags": [
-          "health"
-        ],
-        "operationId": "api_status",
-        "responses": {
-          "200": {
-            "description": "API status with database connectivity",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HealthStatus"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/transactions/mempool": {
-      "get": {
-        "tags": [
-          "transactions"
-        ],
-        "operationId": "get_mempool",
-        "parameters": [
-          {
-            "name": "chain_id",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Mempool transactions",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Transaction"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "api_key": []
-          }
+          "Transactions"
         ]
       }
     },
     "/v1/transactions/{txid}": {
       "get": {
-        "tags": [
-          "transactions"
-        ],
-        "operationId": "get_transaction",
+        "operationId": "TransactionsController_getOne",
+        "summary": "Get parsed transaction details",
         "parameters": [
           {
             "name": "txid",
-            "in": "path",
-            "description": "Transaction ID",
             "required": true,
+            "in": "path",
+            "description": "Transaction ID (64-character lowercase hex string)",
             "schema": {
               "type": "string"
             }
           },
           {
             "name": "chain_id",
+            "required": false,
             "in": "query",
+            "description": "Chain ID (defaults to Verus Testnet)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-None-Match",
+            "in": "header",
+            "description": "Send previous ETag to receive 304 Not Modified when unchanged",
             "required": false,
             "schema": {
               "type": "string"
@@ -522,462 +488,3435 @@
         ],
         "responses": {
           "200": {
-            "description": "Transaction found",
+            "description": "Transaction details retrieved successfully",
+            "headers": {
+              "ETag": {
+                "description": "Entity tag for conditional requests (use with If-None-Match)",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Cache-Control": {
+                "description": "HTTP caching policy for this response",
+                "schema": {
+                  "type": "string"
+                },
+                "example": "public, max-age=31536000, immutable"
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Transaction"
+                  "$ref": "#/components/schemas/ParsedTransactionDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "headers": {
+              "X-RateLimit-Limit": {
+                "description": "max requests in the window",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "remaining requests",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "window reset epoch seconds",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Transactions"
+        ]
+      }
+    },
+    "/v1/analytics/blocks/total": {
+      "get": {
+        "operationId": "AnalyticsController_getTotalBlocks",
+        "summary": "Get total blocks over time",
+        "description": "Returns the total number of blocks grouped by time period (hour/day/week/month)",
+        "parameters": [
+          {
+            "name": "chain_id",
+            "required": false,
+            "in": "query",
+            "description": "Chain ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "granularity",
+            "required": false,
+            "in": "query",
+            "description": "Time granularity",
+            "schema": {
+              "enum": [
+                "hour",
+                "day",
+                "week",
+                "month"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "since",
+            "required": false,
+            "in": "query",
+            "description": "Start date (ISO 8601)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "until",
+            "required": false,
+            "in": "query",
+            "description": "End date (ISO 8601)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TotalBlocksDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Analytics"
+        ]
+      }
+    },
+    "/v1/analytics/blocks/production-rate": {
+      "get": {
+        "operationId": "AnalyticsController_getBlockProductionRate",
+        "summary": "Get block production rate",
+        "description": "Returns the number of blocks produced per time period",
+        "parameters": [
+          {
+            "name": "chain_id",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "granularity",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "hour",
+                "day",
+                "week"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "since",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "until",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlockProductionRateDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Analytics"
+        ]
+      }
+    },
+    "/v1/analytics/blocks/average-time": {
+      "get": {
+        "operationId": "AnalyticsController_getAverageBlockTime",
+        "summary": "Get average block time",
+        "description": "Returns average time between consecutive blocks",
+        "parameters": [
+          {
+            "name": "chain_id",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "granularity",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "hour",
+                "day",
+                "week"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "since",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "until",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AverageBlockTimeDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Analytics"
+        ]
+      }
+    },
+    "/v1/analytics/blocks/time-distribution": {
+      "get": {
+        "operationId": "AnalyticsController_getBlockTimeDistribution",
+        "summary": "Get block time distribution",
+        "description": "Returns distribution of block times in histogram buckets",
+        "parameters": [
+          {
+            "name": "chain_id",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "since",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "until",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlockTimeDistributionDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Analytics"
+        ]
+      }
+    },
+    "/v1/analytics/blocks/difficulty": {
+      "get": {
+        "operationId": "AnalyticsController_getDifficultyOverTime",
+        "summary": "Get difficulty over time",
+        "description": "Returns mining difficulty trend over time",
+        "parameters": [
+          {
+            "name": "chain_id",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "granularity",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "day",
+                "week",
+                "month"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "since",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "until",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DifficultyOverTimeDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Analytics"
+        ]
+      }
+    },
+    "/v1/analytics/blocks/by-hour": {
+      "get": {
+        "operationId": "AnalyticsController_getBlocksByHour",
+        "summary": "Get blocks by hour of day",
+        "description": "Returns distribution of blocks across hours of the day (0-23)",
+        "parameters": [
+          {
+            "name": "chain_id",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "since",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "until",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlocksByHourDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Analytics"
+        ]
+      }
+    },
+    "/v1/analytics/blocks/size-stats": {
+      "get": {
+        "operationId": "AnalyticsController_getBlockSizeStats",
+        "summary": "Get block size statistics",
+        "description": "Returns statistical analysis of block sizes",
+        "parameters": [
+          {
+            "name": "chain_id",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "granularity",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "hour",
+                "day",
+                "week",
+                "month"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "since",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "until",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlockSizeStatsDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Analytics"
+        ]
+      }
+    },
+    "/v1/analytics/blocks/largest": {
+      "get": {
+        "operationId": "AnalyticsController_getLargestBlocks",
+        "summary": "Get largest blocks",
+        "description": "Returns the largest blocks by size",
+        "parameters": [
+          {
+            "name": "chain_id",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Number of results (default: 10)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "since",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "until",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LargestBlocksDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Analytics"
+        ]
+      }
+    },
+    "/v1/analytics/transactions/total": {
+      "get": {
+        "operationId": "AnalyticsController_getTotalTransactions",
+        "summary": "Get total transactions over time",
+        "description": "Returns the total number of transactions grouped by time period",
+        "parameters": [
+          {
+            "name": "chain_id",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "granularity",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "hour",
+                "day",
+                "week",
+                "month"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "since",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "until",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TotalTransactionsDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Analytics"
+        ]
+      }
+    },
+    "/v1/analytics/transactions/rate": {
+      "get": {
+        "operationId": "AnalyticsController_getTransactionRate",
+        "summary": "Get transaction rate (TPS)",
+        "description": "Returns transactions per second (TPS) aggregated by time period",
+        "parameters": [
+          {
+            "name": "chain_id",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "granularity",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "hour",
+                "day",
+                "week"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "since",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "until",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionRateDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Analytics"
+        ]
+      }
+    },
+    "/v1/analytics/transactions/types": {
+      "get": {
+        "operationId": "AnalyticsController_getTransactionTypes",
+        "summary": "Get transaction type breakdown",
+        "description": "Returns distribution of transactions by type",
+        "parameters": [
+          {
+            "name": "chain_id",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "since",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "until",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionTypesDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Analytics"
+        ]
+      }
+    },
+    "/v1/analytics/transactions/per-block": {
+      "get": {
+        "operationId": "AnalyticsController_getTransactionsPerBlock",
+        "summary": "Get transactions per block statistics",
+        "description": "Returns statistical analysis of transaction count per block",
+        "parameters": [
+          {
+            "name": "chain_id",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "granularity",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "hour",
+                "day",
+                "week",
+                "month"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "since",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "until",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionsPerBlockDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Analytics"
+        ]
+      }
+    },
+    "/v1/analytics/transactions/active-addresses": {
+      "get": {
+        "operationId": "AnalyticsController_getActiveAddresses",
+        "summary": "Get active addresses over time",
+        "description": "Returns the number of unique active addresses per time period",
+        "parameters": [
+          {
+            "name": "chain_id",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "granularity",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "day",
+                "week",
+                "month"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "since",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "until",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActiveAddressesDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Analytics"
+        ]
+      }
+    },
+    "/v1/analytics/transactions/top-addresses": {
+      "get": {
+        "operationId": "AnalyticsController_getTopAddresses",
+        "summary": "Get top addresses",
+        "description": "Returns the most active addresses by transaction count",
+        "parameters": [
+          {
+            "name": "chain_id",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Number of results (default: 10)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "since",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "until",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopAddressesDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Analytics"
+        ]
+      }
+    },
+    "/v1/analytics/transactions/heatmap": {
+      "get": {
+        "operationId": "AnalyticsController_getTransactionHeatmap",
+        "summary": "Get transaction heatmap",
+        "description": "Returns transaction distribution across hours and days of the week",
+        "parameters": [
+          {
+            "name": "chain_id",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "since",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "until",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionHeatmapDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Analytics"
+        ]
+      }
+    },
+    "/v1/identities": {
+      "get": {
+        "operationId": "IdentitiesController_listIdentities",
+        "summary": "List identities with filters and cursor-based pagination",
+        "description": "Returns a paginated list of identities with optional filters. Supports keyset pagination via opaque cursors for efficient large-scale traversal.",
+        "parameters": [
+          {
+            "name": "chain_id",
+            "required": false,
+            "in": "query",
+            "description": "Chain ID (defaults to Verus Testnet)",
+            "schema": {
+              "example": "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq",
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Number of results to return (1-5000, default 25)",
+            "schema": {
+              "example": 25,
+              "type": "number"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "description": "Opaque pagination cursor from previous response",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "description": "Sort order",
+            "schema": {
+              "enum": [
+                "created_at_desc",
+                "created_at_asc",
+                "last_updated_desc",
+                "last_updated_asc",
+                "name_asc"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "since",
+            "required": false,
+            "in": "query",
+            "description": "Inclusive lower bound for created_at (ISO 8601). created_at >= since",
+            "schema": {
+              "example": "2024-01-01T00:00:00Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "until",
+            "required": false,
+            "in": "query",
+            "description": "Exclusive upper bound for created_at (ISO 8601). created_at < until",
+            "schema": {
+              "example": "2024-12-31T23:59:59Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "updated_since",
+            "required": false,
+            "in": "query",
+            "description": "Filter: last_updated_at >= updated_since (ISO 8601)",
+            "schema": {
+              "example": "2025-01-01T00:00:00Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "name_prefix",
+            "required": false,
+            "in": "query",
+            "description": "Filter: name starts with prefix (case-insensitive)",
+            "schema": {
+              "example": "Mike",
+              "type": "string"
+            }
+          },
+          {
+            "name": "flags",
+            "required": false,
+            "in": "query",
+            "description": "Filter: comma-separated flags (identities with ANY of these flags)",
+            "schema": {
+              "example": "active,revocable",
+              "type": "string"
+            }
+          },
+          {
+            "name": "parent_id",
+            "required": false,
+            "in": "query",
+            "description": "Filter by parent identity ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "system_id",
+            "required": false,
+            "in": "query",
+            "description": "Filter by system ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "referrer",
+            "required": false,
+            "in": "query",
+            "description": "Filter by referrer",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "min_update_count",
+            "required": false,
+            "in": "query",
+            "description": "Filter: update_count >= min_update_count",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "If-None-Match",
+            "in": "header",
+            "description": "Send previous ETag to receive 304 Not Modified when unchanged",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Identities page retrieved successfully",
+            "headers": {
+              "ETag": {
+                "description": "Entity tag for conditional requests",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Cache-Control": {
+                "description": "HTTP caching policy",
+                "schema": {
+                  "type": "string"
+                },
+                "example": "public, max-age=10"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedIdentitiesDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters (e.g., invalid limit, sort, or date format)"
+          },
+          "429": {
+            "description": "Too many requests",
+            "headers": {
+              "X-RateLimit-Limit": {
+                "description": "max requests in the window",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "remaining requests",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "window reset epoch seconds",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Identities"
+        ]
+      }
+    },
+    "/v1/identities/activity": {
+      "get": {
+        "operationId": "IdentitiesController_getIdentityActivity",
+        "summary": "Global identity activity feed",
+        "description": "Returns a paginated list of the latest identity update events across all identities on the chain. Useful for monitoring recent identity activity, registrations, and updates.",
+        "parameters": [
+          {
+            "name": "chain_id",
+            "required": false,
+            "in": "query",
+            "description": "Chain ID (defaults to Verus Testnet)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Number of results to return (1-5000, default 25)",
+            "schema": {
+              "example": 25,
+              "type": "number"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "description": "Opaque pagination cursor from previous response",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "description": "Sort order",
+            "schema": {
+              "enum": [
+                "timestamp_desc",
+                "timestamp_asc"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "since",
+            "required": false,
+            "in": "query",
+            "description": "Inclusive lower bound for timestamp (ISO 8601). timestamp >= since",
+            "schema": {
+              "example": "2024-01-01T00:00:00Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "until",
+            "required": false,
+            "in": "query",
+            "description": "Exclusive upper bound for timestamp (ISO 8601). timestamp < until",
+            "schema": {
+              "example": "2024-12-31T23:59:59Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "description": "Filter: comma-separated event types",
+            "schema": {
+              "example": "registration,authority_update",
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-None-Match",
+            "in": "header",
+            "description": "Send previous ETag to receive 304 Not Modified when unchanged",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Identity activity retrieved successfully",
+            "headers": {
+              "ETag": {
+                "description": "Entity tag for conditional requests",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Cache-Control": {
+                "description": "HTTP caching policy",
+                "schema": {
+                  "type": "string"
+                },
+                "example": "public, max-age=10"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedIdentityUpdatesDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters"
+          },
+          "429": {
+            "description": "Too many requests"
+          }
+        },
+        "tags": [
+          "Identities"
+        ]
+      }
+    },
+    "/v1/identities/by-address/{identity_address}": {
+      "get": {
+        "operationId": "IdentitiesController_getByAddress",
+        "summary": "Resolve an identity by i-address",
+        "description": "Retrieve complete identity information by its on-chain identity address (i-address). This endpoint returns immutable identity data and supports long-term caching.",
+        "parameters": [
+          {
+            "name": "identity_address",
+            "required": true,
+            "in": "path",
+            "description": "Identity address (i-address, e.g., iD3vGW9F8QGmPE9yR7jN5X2nS8tK1mH6wL)",
+            "schema": {
+              "example": "iD3vGW9F8QGmPE9yR7jN5X2nS8tK1mH6wL",
+              "type": "string"
+            }
+          },
+          {
+            "name": "chain_id",
+            "required": false,
+            "in": "query",
+            "description": "Chain ID (defaults to Verus Testnet)",
+            "schema": {
+              "example": "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq",
+              "type": "string"
+            }
+          },
+          {
+            "name": "raw",
+            "required": false,
+            "in": "query",
+            "description": "Include raw blockchain data in response",
+            "schema": {
+              "example": false,
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "If-None-Match",
+            "in": "header",
+            "description": "Send previous ETag to receive 304 Not Modified when unchanged",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Identity retrieved successfully",
+            "headers": {
+              "ETag": {
+                "description": "Entity tag for conditional requests",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Cache-Control": {
+                "description": "HTTP caching policy",
+                "schema": {
+                  "type": "string"
+                },
+                "example": "public, max-age=31536000, immutable"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentitySummaryDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid identity_address format"
+          },
+          "404": {
+            "description": "Identity not found"
+          },
+          "429": {
+            "description": "Too many requests"
+          }
+        },
+        "tags": [
+          "Identities"
+        ]
+      }
+    },
+    "/v1/identities/{name}": {
+      "get": {
+        "operationId": "IdentitiesController_getByName",
+        "summary": "Get identity details by name with context-aware resolution",
+        "description": "Retrieve complete identity information by its unique name. This endpoint returns the identity summary including balance, metrics, and metadata. For short names, system_id and parent_id provide disambiguation context. Fully-qualified names (containing \"@\") ignore context parameters.",
+        "parameters": [
+          {
+            "name": "name",
+            "required": true,
+            "in": "path",
+            "description": "Identity name (e.g., \"Mike@\" or \"PAXG\")",
+            "schema": {
+              "example": "PAXG",
+              "type": "string"
+            }
+          },
+          {
+            "name": "chain_id",
+            "required": false,
+            "in": "query",
+            "description": "Chain ID (defaults to Verus Testnet)",
+            "schema": {
+              "example": "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq",
+              "type": "string"
+            }
+          },
+          {
+            "name": "system_id",
+            "required": false,
+            "in": "query",
+            "description": "System/PBaaS chain context for short name resolution",
+            "schema": {
+              "example": "iExaMPLe",
+              "type": "string"
+            }
+          },
+          {
+            "name": "parent_id",
+            "required": false,
+            "in": "query",
+            "description": "Parent identity context for short name resolution",
+            "schema": {
+              "example": "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq",
+              "type": "string"
+            }
+          },
+          {
+            "name": "raw",
+            "required": false,
+            "in": "query",
+            "description": "Include raw blockchain data in response",
+            "schema": {
+              "example": false,
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "If-None-Match",
+            "in": "header",
+            "description": "Send previous ETag to receive 304 Not Modified when unchanged",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Identity retrieved successfully",
+            "headers": {
+              "ETag": {
+                "description": "Entity tag for conditional requests",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Cache-Control": {
+                "description": "HTTP caching policy",
+                "schema": {
+                  "type": "string"
+                },
+                "example": "public, max-age=10"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentitySummaryDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid identity name format"
+          },
+          "404": {
+            "description": "Identity not found"
+          },
+          "409": {
+            "description": "Multiple identities match the criteria (ambiguous)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "AMBIGUOUS_IDENTITY"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Multiple identities match the name \"alice\""
+                    },
+                    "details": {
+                      "type": "object",
+                      "properties": {
+                        "candidates": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string"
+                              },
+                              "i_address": {
+                                "type": "string"
+                              },
+                              "system_id": {
+                                "type": "string"
+                              },
+                              "parent_id": {
+                                "type": "string",
+                                "nullable": true
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests"
+          }
+        },
+        "tags": [
+          "Identities"
+        ]
+      }
+    },
+    "/v1/identities/{name}/updates": {
+      "get": {
+        "operationId": "IdentitiesController_getIdentityUpdates",
+        "summary": "Get identity update history",
+        "description": "Returns a paginated list of on-chain identity update events for a given identity. Each event represents a modification to the identity (registration, primary address change, authority updates, etc.).",
+        "parameters": [
+          {
+            "name": "name",
+            "required": true,
+            "in": "path",
+            "description": "Identity name (e.g., \"Mike@\" or \"Mike@VRSCTEST\")",
+            "schema": {
+              "example": "Mike@",
+              "type": "string"
+            }
+          },
+          {
+            "name": "chain_id",
+            "required": false,
+            "in": "query",
+            "description": "Chain ID (defaults to Verus Testnet)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Number of results to return (1-5000, default 25)",
+            "schema": {
+              "example": 25,
+              "type": "number"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "description": "Opaque pagination cursor from previous response",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "description": "Sort order",
+            "schema": {
+              "enum": [
+                "timestamp_desc",
+                "timestamp_asc",
+                "update_number_desc",
+                "update_number_asc"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "since",
+            "required": false,
+            "in": "query",
+            "description": "Inclusive lower bound for timestamp (ISO 8601). timestamp >= since",
+            "schema": {
+              "example": "2024-01-01T00:00:00Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "until",
+            "required": false,
+            "in": "query",
+            "description": "Exclusive upper bound for timestamp (ISO 8601). timestamp < until",
+            "schema": {
+              "example": "2024-12-31T23:59:59Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "min_height",
+            "required": false,
+            "in": "query",
+            "description": "Filter: block_height >= min_height",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "max_height",
+            "required": false,
+            "in": "query",
+            "description": "Filter: block_height <= max_height",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "content_keys",
+            "required": false,
+            "in": "query",
+            "description": "Filter: comma-separated content keys (updates touching ANY of these fields)",
+            "schema": {
+              "example": "recovery_authority,primary_addresses",
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-None-Match",
+            "in": "header",
+            "description": "Send previous ETag to receive 304 Not Modified when unchanged",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Identity updates retrieved successfully",
+            "headers": {
+              "ETag": {
+                "description": "Entity tag for conditional requests",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Cache-Control": {
+                "description": "HTTP caching policy",
+                "schema": {
+                  "type": "string"
+                },
+                "example": "public, max-age=10"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedIdentityUpdatesDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters"
+          },
+          "404": {
+            "description": "Identity not found"
+          },
+          "429": {
+            "description": "Too many requests"
+          }
+        },
+        "tags": [
+          "Identities"
+        ]
+      }
+    },
+    "/v1/identities/{name}/authorities": {
+      "get": {
+        "operationId": "IdentitiesController_getIdentityAuthorities",
+        "summary": "Get identity authority configuration",
+        "description": "Returns the security and authority configuration for an identity, including multisig setup, recovery authority, revocation authority, timelock, and derived security flags.",
+        "parameters": [
+          {
+            "name": "name",
+            "required": true,
+            "in": "path",
+            "description": "Identity name (e.g., \"Mike@\" or \"Mike@VRSCTEST\")",
+            "schema": {
+              "example": "Mike@",
+              "type": "string"
+            }
+          },
+          {
+            "name": "chain_id",
+            "required": false,
+            "in": "query",
+            "description": "Chain ID (defaults to Verus Testnet)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-None-Match",
+            "in": "header",
+            "description": "Send previous ETag to receive 304 Not Modified when unchanged",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Identity authorities retrieved successfully",
+            "headers": {
+              "ETag": {
+                "description": "Entity tag for conditional requests",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Cache-Control": {
+                "description": "HTTP caching policy",
+                "schema": {
+                  "type": "string"
+                },
+                "example": "public, max-age=31536000, immutable"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityAuthoritiesDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid identity name format"
+          },
+          "404": {
+            "description": "Identity not found"
+          },
+          "429": {
+            "description": "Too many requests"
+          }
+        },
+        "tags": [
+          "Identities"
+        ]
+      }
+    },
+    "/v1/identities/{name}/transactions": {
+      "get": {
+        "operationId": "IdentitiesController_getIdentityTransactions",
+        "summary": "Get transactions for an identity",
+        "description": "Returns a paginated list of transactions involving the specified identity. This includes both transactions where the identity is a sender or recipient, and identity-related operations.",
+        "parameters": [
+          {
+            "name": "name",
+            "required": true,
+            "in": "path",
+            "description": "Identity name (e.g., \"Mike@\" or \"PAXG\")",
+            "schema": {
+              "example": "PAXG",
+              "type": "string"
+            }
+          },
+          {
+            "name": "chain_id",
+            "required": false,
+            "in": "query",
+            "description": "Chain ID (defaults to Verus Testnet)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Number of results to return (1-5000, default 25)",
+            "schema": {
+              "example": 25,
+              "type": "number"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "description": "Opaque pagination cursor from previous response",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "description": "Sort order",
+            "schema": {
+              "enum": [
+                "timestamp_desc",
+                "timestamp_asc"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "since",
+            "required": false,
+            "in": "query",
+            "description": "Inclusive lower bound for timestamp (ISO 8601)",
+            "schema": {
+              "example": "2024-01-01T00:00:00Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "until",
+            "required": false,
+            "in": "query",
+            "description": "Exclusive upper bound for timestamp (ISO 8601)",
+            "schema": {
+              "example": "2024-12-31T23:59:59Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "min_height",
+            "required": false,
+            "in": "query",
+            "description": "Filter: block_height >= min_height",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "max_height",
+            "required": false,
+            "in": "query",
+            "description": "Filter: block_height <= max_height",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "If-None-Match",
+            "in": "header",
+            "description": "Send previous ETag to receive 304 Not Modified when unchanged",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transactions retrieved successfully",
+            "headers": {
+              "ETag": {
+                "description": "Entity tag for conditional requests",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Cache-Control": {
+                "description": "HTTP caching policy",
+                "schema": {
+                  "type": "string"
+                },
+                "example": "public, max-age=10"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedTransactionsDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters"
+          },
+          "404": {
+            "description": "Identity not found"
+          },
+          "429": {
+            "description": "Too many requests"
+          }
+        },
+        "tags": [
+          "Identities"
+        ]
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "HealthController_getHealth",
+        "summary": "Health check endpoint",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Service is healthy"
+          },
+          "503": {
+            "description": "Service is unhealthy"
+          }
+        },
+        "tags": [
+          "Health"
+        ]
+      }
+    },
+    "/v1/addresses/{address}": {
+      "get": {
+        "operationId": "AddressesController_getAddress",
+        "summary": "Get address summary and identity links",
+        "description": "Retrieve comprehensive address information including transaction counts, current balance, last activity timestamp, and associated Verus identities. Supports both R-addresses (transparent addresses) and i-addresses (identity addresses). Addresses must be 21-51 characters starting with R or i.",
+        "parameters": [
+          {
+            "name": "address",
+            "required": true,
+            "in": "path",
+            "description": "Blockchain address (R-address or i-address). Must start with R or i, followed by 20-50 alphanumeric characters. Examples: RHkGRwDGXmPner8wenQNGMeYNfNZ5qKp4L (R-address) or iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq (i-address)",
+            "examples": {
+              "rAddress": {
+                "summary": "R-address (transparent)",
+                "value": "RHkGRwDGXmPner8wenQNGMeYNfNZ5qKp4L"
+              },
+              "iAddress": {
+                "summary": "i-address (identity)",
+                "value": "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq"
+              }
+            },
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "chain_id",
+            "required": false,
+            "in": "query",
+            "description": "Chain ID to query (defaults to Verus Testnet)",
+            "schema": {
+              "example": "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq",
+              "type": "string"
+            }
+          },
+          {
+            "name": "raw",
+            "required": false,
+            "in": "query",
+            "description": "Include raw blockchain data (reserved for future use)",
+            "schema": {
+              "example": false,
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Address summary retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddressSummaryDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid address format (must start with R or i, 21-51 characters)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
                 }
               }
             }
           },
           "404": {
-            "description": "Transaction not found"
+            "description": "Address not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests"
           }
         },
-        "security": [
+        "tags": [
+          "Addresses"
+        ]
+      }
+    },
+    "/v1/search": {
+      "get": {
+        "operationId": "SearchController_search",
+        "summary": "Search across identities, addresses, transactions, blocks, and currencies",
+        "description": "Universal search with auto-detection. Optional filter \"type\" accepts comma-separated values: identity,address,transaction,block,currency.",
+        "parameters": [
           {
-            "api_key": []
+            "name": "q",
+            "required": true,
+            "in": "query",
+            "description": "Search query string. Can be an identity name, address, transaction ID, block hash, block height, or currency symbol.",
+            "examples": {
+              "identity": {
+                "summary": "Search for identity",
+                "value": "alice@"
+              },
+              "address": {
+                "summary": "Search for address",
+                "value": "RHkGRwDGXmPner8wenQNGMeYNfNZ5qKp4L"
+              },
+              "blockHeight": {
+                "summary": "Search for block by height",
+                "value": "4500000"
+              },
+              "currency": {
+                "summary": "Search for currency",
+                "value": "VRSC"
+              }
+            },
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "description": "Filter results by type. Accepts comma-separated list of types: identity, address, transaction, block, currency. Examples: type=identity or type=identity,address",
+            "schema": {
+              "example": "identity,address",
+              "type": "string"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of results to skip for pagination (default: 0)",
+            "schema": {
+              "example": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of results to return per page (1-5000, default: 25)",
+            "schema": {
+              "example": 25,
+              "type": "number"
+            }
           }
+        ],
+        "responses": {
+          "200": {
+            "description": "Search results retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedSearchResultsDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid query parameters (missing q, invalid limit/offset)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests"
+          }
+        },
+        "tags": [
+          "Search"
+        ]
+      }
+    },
+    "/v1/chain-metadata": {
+      "get": {
+        "operationId": "ChainsController_getChainMetadata",
+        "summary": "List available chains and PBaaS chains",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Chain metadata retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ChainMetadataDto"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests"
+          }
+        },
+        "tags": [
+          "Metadata"
         ]
       }
     }
   },
+  "info": {
+    "title": "ChainVue API (Verus Testnet MVP)",
+    "description": "Developer-first API for Verus identities, transactions, and blocks.\n\nFeatures:\n- **Semantic tagging** for transaction categorization\n- **HATEOAS links** for resource discovery\n- **Enhanced filtering** with pagination\n- **Mock data** for rapid development\n\nPerfect foundation for analytics, automation, and AI-powered blockchain exploration.",
+    "version": "0.3.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [
+    {
+      "url": "https://api.devdude.io",
+      "description": "Devdude API Production"
+    }
+  ],
   "components": {
     "schemas": {
-      "Address": {
+      "BlockLinksDto": {
         "type": "object",
-        "required": [
-          "chain_id",
-          "address",
-          "balance"
-        ],
         "properties": {
-          "address": {
+          "self": {
             "type": "string",
-            "example": "RCG8KwJNDVwpUBcdoa6AoHqHVJsA1uMYMR"
+            "description": "Link to this block"
           },
-          "balance": {
+          "block": {
             "type": "string",
-            "example": "1234.56789"
-          },
-          "chain_id": {
-            "type": "string",
-            "example": "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq"
-          },
-          "total_received": {
-            "type": "string",
-            "example": "5000.00000000",
+            "description": "Link to parent block",
             "nullable": true
-          },
-          "total_sent": {
-            "type": "string",
-            "example": "3765.43211000",
-            "nullable": true
-          },
-          "tx_count": {
+          }
+        },
+        "required": [
+          "self"
+        ]
+      },
+      "BlockDetailDto": {
+        "type": "object",
+        "properties": {
+          "block_height": {
             "type": "integer",
-            "format": "int32",
-            "example": 156,
-            "nullable": true
-          }
-        }
-      },
-      "ApiResponse": {
-        "type": "object",
-        "required": [
-          "success",
-          "meta"
-        ],
-        "properties": {
-          "data": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/T"
-              }
-            ],
-            "nullable": true
-          },
-          "error": {
-            "type": "string",
-            "nullable": true
-          },
-          "meta": {
-            "type": "object",
-            "required": [
-              "request_id",
-              "timestamp"
-            ],
-            "properties": {
-              "request_id": {
-                "type": "string",
-                "example": "req_abc123"
-              },
-              "timestamp": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
-          },
-          "success": {
-            "type": "boolean",
-            "example": true
-          }
-        }
-      },
-      "Block": {
-        "type": "object",
-        "required": [
-          "chain_id",
-          "hash",
-          "height",
-          "parent_hash",
-          "ts"
-        ],
-        "properties": {
-          "bits": {
-            "type": "string",
-            "example": "1d00ffff",
-            "nullable": true
+            "description": "Block height",
+            "example": 798100
           },
           "chain_id": {
             "type": "string",
+            "description": "Chain ID",
             "example": "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq"
-          },
-          "difficulty": {
-            "type": "number",
-            "format": "double",
-            "example": 1.5,
-            "nullable": true
-          },
-          "extras": {
-            "nullable": true
           },
           "hash": {
             "type": "string",
-            "example": "0000000000000000000000000000000000000000000000000000000000000001"
+            "description": "Block hash",
+            "example": "0000000000000000000000000000000000000000000000000000000000000000"
           },
-          "height": {
-            "type": "integer",
-            "format": "int64",
-            "example": 4500000
-          },
-          "merkleroot": {
+          "timestamp": {
             "type": "string",
-            "example": "abc123...",
+            "description": "Block timestamp",
+            "format": "date-time",
+            "example": "2025-11-12T10:30:00Z"
+          },
+          "tx_count": {
+            "type": "integer",
+            "description": "Transaction count",
+            "example": 5
+          },
+          "difficulty": {
+            "type": "number",
+            "description": "Difficulty",
+            "example": 1234567.89,
+            "nullable": true
+          },
+          "size": {
+            "type": "integer",
+            "description": "Block size in bytes",
+            "example": 2048,
             "nullable": true
           },
           "parent_hash": {
             "type": "string",
+            "description": "Parent block hash",
             "example": "0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "merkleroot": {
+            "type": "string",
+            "description": "Merkle root",
+            "example": "0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "version": {
+            "type": "integer",
+            "description": "Block version",
+            "example": 4,
+            "nullable": true
+          },
+          "types": {
+            "description": "Transaction types in this block",
+            "example": [
+              "coinbase",
+              "standard"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "_links": {
+            "description": "HATEOAS links",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BlockLinksDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "block_height",
+          "chain_id",
+          "hash",
+          "timestamp",
+          "tx_count",
+          "parent_hash",
+          "merkleroot",
+          "types",
+          "_links"
+        ]
+      },
+      "PaginatedBlocksDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "description": "Array of blocks",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BlockDetailDto"
+            }
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Number of items per page",
+            "example": 25,
+            "minimum": 1,
+            "maximum": 5000
+          },
+          "next_cursor": {
+            "type": "string",
+            "description": "Opaque cursor for next page, or null if no more results",
+            "example": "eyJyZXNvdXJjZSI6ImJsb2NrcyIsImNoYWluX2lkIjoiaUpoQ2V6QkV4Skh2dHlIM2ZHaE5udDJOaFU0WnRrZjJ5cSIsInNvcnQiOiJoZWlnaHRfZGVzYyIsInNpbmNlIjpudWxsLCJ1bnRpbCI6bnVsbCwibWluX2hlaWdodCI6bnVsbCwibWF4X2hlaWdodCI6bnVsbCwiY3Vyc29yX2hlaWdodCI6Nzk4MDk5fQ",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "limit"
+        ]
+      },
+      "PaginatedTransactionsDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "ParsedTransactionDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "TimeSeriesDataPoint": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "description": "Timestamp or period label"
+          },
+          "value": {
+            "type": "number",
+            "description": "Value for this period"
+          }
+        },
+        "required": [
+          "timestamp",
+          "value"
+        ]
+      },
+      "TotalBlocksDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "Block count over time",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TimeSeriesDataPoint"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total blocks in dataset"
+          }
+        },
+        "required": [
+          "data",
+          "total"
+        ]
+      },
+      "BlockProductionRateDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "Blocks per period",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TimeSeriesDataPoint"
+            }
+          },
+          "average": {
+            "type": "number",
+            "description": "Average blocks per period"
+          }
+        },
+        "required": [
+          "data",
+          "average"
+        ]
+      },
+      "AverageBlockTimeDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "Average block time over periods",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TimeSeriesDataPoint"
+            }
+          },
+          "overall_average": {
+            "type": "number",
+            "description": "Overall average block time in seconds"
+          }
+        },
+        "required": [
+          "data",
+          "overall_average"
+        ]
+      },
+      "DistributionBucket": {
+        "type": "object",
+        "properties": {
+          "range": {
+            "type": "string",
+            "description": "Bucket range or label"
+          },
+          "count": {
+            "type": "integer",
+            "description": "Count in this bucket"
+          },
+          "percentage": {
+            "type": "number",
+            "description": "Percentage of total"
+          }
+        },
+        "required": [
+          "range",
+          "count",
+          "percentage"
+        ]
+      },
+      "BlockTimeDistributionDto": {
+        "type": "object",
+        "properties": {
+          "distribution": {
+            "description": "Distribution of block times",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DistributionBucket"
+            }
+          },
+          "median": {
+            "type": "number",
+            "description": "Median block time in seconds"
+          },
+          "std_dev": {
+            "type": "number",
+            "description": "Standard deviation"
+          }
+        },
+        "required": [
+          "distribution",
+          "median",
+          "std_dev"
+        ]
+      },
+      "DifficultyOverTimeDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "Difficulty over time",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TimeSeriesDataPoint"
+            }
+          },
+          "current": {
+            "type": "number",
+            "description": "Current difficulty"
+          },
+          "change_percent": {
+            "type": "number",
+            "description": "Percentage change from start"
+          }
+        },
+        "required": [
+          "data",
+          "current",
+          "change_percent"
+        ]
+      },
+      "BlocksByHourDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "Blocks by hour of day (0-23)",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TimeSeriesDataPoint"
+            }
+          },
+          "peak_hour": {
+            "type": "integer",
+            "description": "Peak hour"
+          }
+        },
+        "required": [
+          "data",
+          "peak_hour"
+        ]
+      },
+      "BlockSizeStatsDto": {
+        "type": "object",
+        "properties": {
+          "average": {
+            "type": "number",
+            "description": "Average block size in bytes"
+          },
+          "median": {
+            "type": "number",
+            "description": "Median block size in bytes"
+          },
+          "max": {
+            "type": "number",
+            "description": "Maximum block size in bytes"
+          },
+          "min": {
+            "type": "number",
+            "description": "Minimum block size in bytes"
+          },
+          "over_time": {
+            "description": "Average size over time",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TimeSeriesDataPoint"
+            }
+          }
+        },
+        "required": [
+          "average",
+          "median",
+          "max",
+          "min",
+          "over_time"
+        ]
+      },
+      "LargestBlock": {
+        "type": "object",
+        "properties": {
+          "block_height": {
+            "type": "integer",
+            "description": "Block height"
+          },
+          "hash": {
+            "type": "string",
+            "description": "Block hash"
           },
           "size": {
             "type": "integer",
-            "format": "int64",
-            "example": 1234,
-            "nullable": true
+            "description": "Block size in bytes"
           },
-          "status": {
+          "timestamp": {
             "type": "string",
-            "example": "canonical",
-            "nullable": true
-          },
-          "ts": {
-            "type": "integer",
-            "format": "int64",
-            "example": 1730300000
+            "description": "Timestamp"
           },
           "tx_count": {
             "type": "integer",
-            "format": "int32",
-            "example": 5,
-            "nullable": true
-          },
-          "version": {
-            "type": "integer",
-            "format": "int32",
-            "example": 4,
-            "nullable": true
+            "description": "Transaction count"
           }
-        }
-      },
-      "Chain": {
-        "type": "object",
+        },
         "required": [
-          "chain_id",
-          "chain_name",
-          "network"
-        ],
+          "block_height",
+          "hash",
+          "size",
+          "timestamp",
+          "tx_count"
+        ]
+      },
+      "LargestBlocksDto": {
+        "type": "object",
         "properties": {
-          "chain_id": {
-            "type": "string",
-            "example": "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq"
-          },
-          "chain_name": {
-            "type": "string",
-            "example": "VRSCTEST"
-          },
-          "first_block": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "last_block": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "metadata": {
-            "nullable": true
-          },
-          "network": {
-            "type": "string",
-            "example": "testnet"
+          "blocks": {
+            "description": "Largest blocks by size",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LargestBlock"
+            }
           }
-        }
-      },
-      "Currency": {
-        "type": "object",
+        },
         "required": [
-          "chain_id",
-          "currency_id",
-          "name",
-          "options"
-        ],
+          "blocks"
+        ]
+      },
+      "TotalTransactionsDto": {
+        "type": "object",
         "properties": {
-          "chain_id": {
-            "type": "string",
-            "example": "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq"
+          "data": {
+            "description": "Transaction count over time",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TimeSeriesDataPoint"
+            }
           },
-          "currency_id": {
-            "type": "string",
-            "example": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV"
+          "total": {
+            "type": "integer",
+            "description": "Total transactions in dataset"
+          }
+        },
+        "required": [
+          "data",
+          "total"
+        ]
+      },
+      "TransactionRateDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "Transactions per period",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TimeSeriesDataPoint"
+            }
           },
-          "currency_type": {
+          "average": {
+            "type": "number",
+            "description": "Average transactions per period"
+          }
+        },
+        "required": [
+          "data",
+          "average"
+        ]
+      },
+      "TransactionTypeBreakdown": {
+        "type": "object",
+        "properties": {
+          "type": {
             "type": "string",
+            "description": "Transaction type"
+          },
+          "count": {
+            "type": "integer",
+            "description": "Count of this type"
+          },
+          "percentage": {
+            "type": "number",
+            "description": "Percentage of total"
+          }
+        },
+        "required": [
+          "type",
+          "count",
+          "percentage"
+        ]
+      },
+      "TransactionTypesDto": {
+        "type": "object",
+        "properties": {
+          "breakdown": {
+            "description": "Breakdown by type",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TransactionTypeBreakdown"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total transactions"
+          }
+        },
+        "required": [
+          "breakdown",
+          "total"
+        ]
+      },
+      "TransactionsPerBlockDto": {
+        "type": "object",
+        "properties": {
+          "average": {
+            "type": "number",
+            "description": "Average transactions per block"
+          },
+          "median": {
+            "type": "number",
+            "description": "Median transactions per block"
+          },
+          "max": {
+            "type": "integer",
+            "description": "Maximum transactions in a block"
+          },
+          "min": {
+            "type": "integer",
+            "description": "Minimum transactions in a block"
+          },
+          "over_time": {
+            "description": "Average over time",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TimeSeriesDataPoint"
+            }
+          }
+        },
+        "required": [
+          "average",
+          "median",
+          "max",
+          "min",
+          "over_time"
+        ]
+      },
+      "ActiveAddressesDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "Unique addresses per period",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TimeSeriesDataPoint"
+            }
+          },
+          "total_unique": {
+            "type": "integer",
+            "description": "Total unique addresses in dataset"
+          }
+        },
+        "required": [
+          "data",
+          "total_unique"
+        ]
+      },
+      "TopAddress": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "type": "string",
+            "description": "Address or identity"
+          },
+          "transaction_count": {
+            "type": "integer",
+            "description": "Transaction count"
+          },
+          "first_seen": {
+            "type": "string",
+            "description": "First seen timestamp"
+          },
+          "last_seen": {
+            "type": "string",
+            "description": "Last seen timestamp"
+          }
+        },
+        "required": [
+          "address",
+          "transaction_count",
+          "first_seen",
+          "last_seen"
+        ]
+      },
+      "TopAddressesDto": {
+        "type": "object",
+        "properties": {
+          "addresses": {
+            "description": "Most active addresses",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TopAddress"
+            }
+          }
+        },
+        "required": [
+          "addresses"
+        ]
+      },
+      "HeatmapCell": {
+        "type": "object",
+        "properties": {
+          "hour": {
+            "type": "integer",
+            "description": "Hour of day (0-23)"
+          },
+          "day": {
+            "type": "integer",
+            "description": "Day of week (0-6, 0=Sunday)"
+          },
+          "count": {
+            "type": "integer",
+            "description": "Transaction count"
+          }
+        },
+        "required": [
+          "hour",
+          "day",
+          "count"
+        ]
+      },
+      "TransactionHeatmapDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "Transaction heatmap data",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HeatmapCell"
+            }
+          },
+          "peak_hour": {
+            "type": "integer",
+            "description": "Peak hour"
+          },
+          "peak_day": {
+            "type": "integer",
+            "description": "Peak day"
+          }
+        },
+        "required": [
+          "data",
+          "peak_hour",
+          "peak_day"
+        ]
+      },
+      "LinksDto": {
+        "type": "object",
+        "properties": {
+          "self": {
+            "type": "string",
+            "description": "Link to the current resource",
+            "example": "/v1/identities/Mike"
+          },
+          "transactions": {
+            "type": "string",
+            "description": "Link to transactions for this resource",
+            "example": "/v1/identities/Mike/transactions",
             "nullable": true
           },
-          "initial_supply": {
+          "block": {
             "type": "string",
+            "description": "Link to the block containing this resource",
+            "example": "/v1/blocks/4500000",
             "nullable": true
           },
-          "is_pbaas_chain": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "is_token": {
-            "type": "boolean",
-            "nullable": true
-          },
+          "identities": {
+            "description": "Links to related identities",
+            "example": [
+              "/v1/identities/Alice",
+              "/v1/identities/Bob"
+            ],
+            "nullable": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "self"
+        ]
+      },
+      "IdentityListItemDto": {
+        "type": "object",
+        "properties": {
           "name": {
             "type": "string",
-            "example": "Bridge.vETH"
+            "description": "Fully qualified identity name (name@chain)",
+            "example": "Mike@"
           },
-          "options": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "raw_data": {
-            "nullable": true
-          },
-          "version": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          }
-        }
-      },
-      "HealthStatus": {
-        "type": "object",
-        "required": [
-          "status",
-          "app_database",
-          "blockchain_database",
-          "version"
-        ],
-        "properties": {
-          "app_database": {
+          "i_address": {
             "type": "string",
-            "example": "connected"
+            "description": "Identity address (i-address)",
+            "example": "iD3vGW9F8QGmPE9yR7jN5X2nS8tK1mH6wL4pC3qZ"
           },
-          "blockchain_database": {
-            "type": "string",
-            "example": "connected"
-          },
-          "status": {
-            "type": "string",
-            "example": "operational"
-          },
-          "version": {
-            "type": "string",
-            "example": "0.1.0"
-          }
-        }
-      },
-      "Identity": {
-        "type": "object",
-        "required": [
-          "chain_id",
-          "identity_address",
-          "name"
-        ],
-        "properties": {
           "chain_id": {
             "type": "string",
+            "description": "Chain ID where this identity exists",
             "example": "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq"
           },
-          "created_block": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "identity_address": {
+          "created_at": {
             "type": "string",
-            "example": "iExBJfZYK7KREDpuhj6PzZBzqMAKaFg7d1"
+            "description": "Timestamp when identity was created",
+            "format": "date-time",
+            "example": "2024-01-15T10:30:00Z"
           },
-          "minimum_signatures": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "name": {
+          "last_updated": {
             "type": "string",
-            "example": "Mike"
-          },
-          "primary_addresses": {
-            "nullable": true
-          },
-          "raw_data": {
+            "description": "Timestamp of last identity update",
+            "format": "date-time",
+            "example": "2025-01-20T15:45:00Z",
             "nullable": true
           },
           "update_count": {
             "type": "integer",
-            "format": "int32",
-            "nullable": true
-          }
-        }
-      },
-      "ResponseMeta": {
-        "type": "object",
-        "required": [
-          "request_id",
-          "timestamp"
-        ],
-        "properties": {
-          "request_id": {
-            "type": "string",
-            "example": "req_abc123"
+            "description": "Number of times this identity has been updated",
+            "example": 3
           },
-          "timestamp": {
-            "type": "string",
-            "format": "date-time"
+          "flags": {
+            "description": "Identity flags",
+            "example": [
+              "active",
+              "revocable"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "primary_addresses": {
+            "description": "Primary addresses associated with this identity",
+            "example": [
+              "RCG8KwJNDVwpUBcdoa6AoHqHVJsA1uMYMR"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "_links": {
+            "description": "HATEOAS links to related resources",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LinksDto"
+              }
+            ]
           }
-        }
-      },
-      "SearchResult": {
-        "type": "object",
+        },
         "required": [
-          "result_type",
-          "data"
-        ],
-        "properties": {
-          "data": {},
-          "result_type": {
-            "type": "string",
-            "example": "block"
-          }
-        }
-      },
-      "Transaction": {
-        "type": "object",
-        "required": [
+          "name",
+          "i_address",
           "chain_id",
-          "txid",
-          "tx_index",
-          "block_hash",
-          "is_coinbase"
-        ],
+          "created_at",
+          "last_updated",
+          "update_count",
+          "flags",
+          "primary_addresses",
+          "_links"
+        ]
+      },
+      "PaginatedIdentitiesDto": {
+        "type": "object",
         "properties": {
-          "block_hash": {
-            "type": "string",
-            "example": "def456..."
+          "items": {
+            "description": "Array of identities",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IdentityListItemDto"
+            }
           },
-          "block_height": {
+          "limit": {
             "type": "integer",
-            "format": "int64",
+            "description": "Number of items per page",
+            "example": 25
+          },
+          "next_cursor": {
+            "type": "string",
+            "description": "Opaque cursor for next page, or null if no more results",
+            "example": "eyJyZXNvdXJjZSI6ImlkZW50aXRpZXMiLCJjaGFpbl9pZCI6ImlKaENlekJFe...",
             "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "limit",
+          "next_cursor"
+        ]
+      },
+      "IdentityUpdateEventDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique update event ID",
+            "example": 12345
           },
           "chain_id": {
             "type": "string",
+            "description": "Chain ID where this update occurred",
             "example": "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq"
           },
-          "is_coinbase": {
-            "type": "boolean",
-            "example": false
+          "identity_address": {
+            "type": "string",
+            "description": "Identity address (i-address)",
+            "example": "iD3vGW9F8QGmPE9yR7jN5X2nS8tK1mH6wL4pC3qZ"
           },
-          "raw": {
-            "nullable": true
+          "identity_name": {
+            "type": "string",
+            "description": "Identity name",
+            "example": "Mike@"
           },
-          "ts": {
+          "block_height": {
             "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "tx_index": {
-            "type": "integer",
-            "format": "int32",
-            "example": 0
+            "description": "Block height where update was confirmed",
+            "example": 4500000
           },
           "txid": {
             "type": "string",
-            "example": "abc123..."
+            "description": "Transaction ID containing this update",
+            "example": "a1b2c3d4e5f6..."
+          },
+          "update_number": {
+            "type": "integer",
+            "description": "Update number (0 = registration, >0 = nth update)",
+            "example": 2
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "Timestamp of update",
+            "format": "date-time",
+            "example": "2025-01-15T10:30:00Z"
+          },
+          "content_keys": {
+            "description": "Keys of fields that were updated",
+            "example": [
+              "primary_addresses",
+              "recovery_authority"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "event_type": {
+            "type": "string",
+            "description": "Event type classification",
+            "enum": [
+              "registration",
+              "update",
+              "authority_update",
+              "timelock_set",
+              "revocation"
+            ],
+            "example": "authority_update"
+          },
+          "diff_summary": {
+            "type": "object",
+            "description": "Human-friendly summary of changes",
+            "nullable": true
           }
-        }
-      }
-    },
-    "securitySchemes": {
-      "api_key": {
-        "type": "http",
-        "scheme": "bearer",
-        "bearerFormat": "API Key",
-        "description": "Enter your API key with 'va_' prefix (e.g., va_xxxxx...)"
+        },
+        "required": [
+          "id",
+          "chain_id",
+          "identity_address",
+          "identity_name",
+          "block_height",
+          "txid",
+          "update_number",
+          "timestamp",
+          "content_keys",
+          "event_type"
+        ]
+      },
+      "PaginatedIdentityUpdatesDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "description": "Array of identity update events",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IdentityUpdateEventDto"
+            }
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Number of items per page",
+            "example": 25
+          },
+          "next_cursor": {
+            "type": "string",
+            "description": "Opaque cursor for next page, or null if no more results",
+            "example": "eyJyZXNvdXJjZSI6ImlkZW50aXR5X3VwZGF0ZXMiLCJjaGFpbl9pZCI6Ii4uLiJ9",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "limit",
+          "next_cursor"
+        ]
+      },
+      "MetricsDto": {
+        "type": "object",
+        "properties": {
+          "tx_count": {
+            "type": "number",
+            "description": "Total transaction count",
+            "example": 42
+          },
+          "last_activity": {
+            "type": "string",
+            "description": "Timestamp of last activity",
+            "format": "date-time",
+            "example": "2025-11-06T12:00:00Z",
+            "nullable": true
+          }
+        },
+        "required": [
+          "tx_count"
+        ]
+      },
+      "IdentitySummaryDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Fully qualified identity name (name@chain)",
+            "pattern": "^[a-zA-Z0-9._-]+@[a-zA-Z0-9]*$",
+            "example": "Mike@"
+          },
+          "i_address": {
+            "type": "string",
+            "description": "Identity address (i-address)",
+            "pattern": "^i[a-zA-Z0-9]{20,50}$",
+            "example": "iD3vGW9F8QGmPE9yR7jN5X2nS8tK1mH6wL4pC3qZ"
+          },
+          "identity_name": {
+            "type": "string",
+            "description": "Human-readable identity name",
+            "example": "Mike"
+          },
+          "chain_id": {
+            "type": "string",
+            "description": "Chain ID where this identity exists",
+            "example": "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq"
+          },
+          "version": {
+            "type": "integer",
+            "description": "Identity version number",
+            "example": 1
+          },
+          "created_at": {
+            "type": "string",
+            "description": "Timestamp when identity was created",
+            "format": "date-time",
+            "example": "2024-01-15T10:30:00Z"
+          },
+          "update_count": {
+            "type": "integer",
+            "description": "Number of times this identity has been updated",
+            "example": 3
+          },
+          "last_updated": {
+            "type": "string",
+            "description": "Timestamp of last identity update",
+            "format": "date-time",
+            "example": "2025-01-20T15:45:00Z",
+            "nullable": true
+          },
+          "primary_addresses": {
+            "description": "Primary addresses associated with this identity",
+            "example": [
+              "RCG8KwJNDVwpUBcdoa6AoHqHVJsA1uMYMR"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "flags": {
+            "description": "Identity flags",
+            "example": [
+              "active",
+              "revocable"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "balance_summary": {
+            "type": "object",
+            "description": "Balance summary by currency (currency_id => amount)",
+            "additionalProperties": {
+              "type": "string",
+              "pattern": "^[0-9]+(\\.[0-9]+)?$"
+            },
+            "example": {
+              "VRSC": "100.50",
+              "BTC": "0.0025"
+            },
+            "nullable": true
+          },
+          "metrics": {
+            "description": "Identity metrics and statistics",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MetricsDto"
+              }
+            ]
+          },
+          "_links": {
+            "description": "HATEOAS links to related resources",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LinksDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "i_address",
+          "identity_name",
+          "chain_id",
+          "version",
+          "created_at",
+          "update_count",
+          "primary_addresses",
+          "flags",
+          "_links"
+        ]
+      },
+      "IdentityAuthoritiesDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Fully qualified identity name",
+            "example": "Mike@"
+          },
+          "identity_address": {
+            "type": "string",
+            "description": "Identity address (i-address)",
+            "example": "iD3vGW9F8QGmPE9yR7jN5X2nS8tK1mH6wL4pC3qZ"
+          },
+          "chain_id": {
+            "type": "string",
+            "description": "Chain ID",
+            "example": "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq"
+          },
+          "primary_addresses": {
+            "description": "Primary addresses",
+            "example": [
+              "RCG8KwJNDVwpUBcdoa6AoHqHVJsA1uMYMR"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "minimum_signatures": {
+            "type": "integer",
+            "description": "Minimum signatures required (multisig threshold)",
+            "example": 1
+          },
+          "recovery_authority": {
+            "description": "Recovery authority addresses/identities",
+            "example": [
+              "iRecoveryAuth1",
+              "iRecoveryAuth2"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "revocation_authority": {
+            "description": "Revocation authority addresses/identities",
+            "example": [
+              "iRevocationAuth1"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "flags": {
+            "description": "Identity flags",
+            "example": [
+              "active",
+              "revocable"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "timelock": {
+            "type": "object",
+            "description": "Timelock configuration",
+            "nullable": true
+          },
+          "is_multisig": {
+            "type": "boolean",
+            "description": "Whether this is a multisig identity",
+            "example": false
+          },
+          "is_recoverable": {
+            "type": "boolean",
+            "description": "Whether this identity is recoverable",
+            "example": true
+          },
+          "is_revocable": {
+            "type": "boolean",
+            "description": "Whether this identity is revocable",
+            "example": true
+          },
+          "is_locked": {
+            "type": "boolean",
+            "description": "Whether this identity is locked",
+            "example": false
+          },
+          "last_authority_update": {
+            "type": "string",
+            "description": "Timestamp of last authority-related update",
+            "format": "date-time",
+            "nullable": true,
+            "example": "2025-01-15T10:30:00Z"
+          },
+          "_links": {
+            "description": "HATEOAS links to related resources",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LinksDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "identity_address",
+          "chain_id",
+          "primary_addresses",
+          "minimum_signatures",
+          "recovery_authority",
+          "revocation_authority",
+          "flags",
+          "timelock",
+          "is_multisig",
+          "is_recoverable",
+          "is_revocable",
+          "is_locked",
+          "last_authority_update",
+          "_links"
+        ]
+      },
+      "AddressSummaryDto": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "type": "string",
+            "description": "Blockchain address (R-addresses for transparent addresses, i-addresses for identity addresses)",
+            "pattern": "^[Ri][a-zA-Z0-9]{20,50}$",
+            "example": "RCG8KwJNDVwpUBcdoa6AoHqHVJsA1uMYMR"
+          },
+          "chain_id": {
+            "type": "string",
+            "description": "Chain ID where this address exists",
+            "example": "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq"
+          },
+          "tx_count": {
+            "type": "number",
+            "description": "Total transaction count for this address",
+            "example": 75
+          },
+          "balance": {
+            "type": "string",
+            "description": "Current balance",
+            "pattern": "^[0-9]+(\\.[0-9]+)?$",
+            "example": "1234.56"
+          },
+          "last_seen": {
+            "type": "string",
+            "description": "Timestamp of last activity",
+            "format": "date-time",
+            "example": "2025-11-06T12:00:00Z",
+            "nullable": true
+          },
+          "linked_identities": {
+            "description": "Identities linked to this address",
+            "example": [
+              "Mike@",
+              "Alice@"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "_links": {
+            "description": "HATEOAS links to related resources",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LinksDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "address",
+          "chain_id",
+          "tx_count",
+          "balance",
+          "linked_identities",
+          "_links"
+        ]
+      },
+      "ErrorDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "number",
+            "description": "HTTP status code",
+            "example": 404
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message",
+            "example": "Identity not found"
+          },
+          "details": {
+            "type": "object",
+            "description": "Additional error details",
+            "example": null
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ]
+      },
+      "SearchResultDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Type of search result",
+            "enum": [
+              "identity",
+              "address",
+              "transaction",
+              "block",
+              "currency"
+            ],
+            "example": "identity"
+          },
+          "value": {
+            "type": "string",
+            "description": "Value/identifier of the result",
+            "example": "Mike@"
+          },
+          "description": {
+            "type": "string",
+            "description": "Human-readable description",
+            "example": "Verus identity registered on Jan 15, 2024"
+          },
+          "link": {
+            "type": "string",
+            "description": "Link to the resource",
+            "example": "/v1/identities/Mike"
+          }
+        },
+        "required": [
+          "type",
+          "value",
+          "description",
+          "link"
+        ]
+      },
+      "PaginatedSearchResultsDto": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "number",
+            "description": "Total number of search results",
+            "example": 42
+          },
+          "limit": {
+            "type": "number",
+            "description": "Number of results per page",
+            "example": 10
+          },
+          "offset": {
+            "type": "number",
+            "description": "Pagination offset",
+            "example": 0
+          },
+          "has_more": {
+            "type": "boolean",
+            "description": "Whether more results are available",
+            "example": true
+          },
+          "results": {
+            "description": "Array of search results",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SearchResultDto"
+            }
+          }
+        },
+        "required": [
+          "total",
+          "limit",
+          "offset",
+          "has_more",
+          "results"
+        ]
+      },
+      "ChainMetadataDto": {
+        "type": "object",
+        "properties": {
+          "chain_id": {
+            "type": "string",
+            "description": "Chain ID",
+            "example": "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq"
+          },
+          "name": {
+            "type": "string",
+            "description": "Chain name",
+            "example": "VRSCTEST"
+          },
+          "is_pbaas": {
+            "type": "boolean",
+            "description": "Whether this is a PBaaS chain",
+            "example": false
+          }
+        },
+        "required": [
+          "chain_id",
+          "name",
+          "is_pbaas"
+        ]
       }
     }
   },
-  "tags": [
-    {
-      "name": "health",
-      "description": "Health check and status endpoints"
-    },
-    {
-      "name": "chains",
-      "description": "Multi-chain support and chain listing endpoints"
-    },
-    {
-      "name": "blocks",
-      "description": "Block information endpoints"
-    },
-    {
-      "name": "transactions",
-      "description": "Transaction lookup and mempool endpoints"
-    },
-    {
-      "name": "addresses",
-      "description": "Address information and history endpoints"
-    },
-    {
-      "name": "identities",
-      "description": "VerusID lookup and search endpoints"
-    },
-    {
-      "name": "search",
-      "description": "Universal search across all resource types"
-    }
-  ],
-  "servers": [
-    {
-      "url": "https://api.chainvue.io",
-      "description": "ChainVue API Production"
-    }
-  ]
+  "jsonSchemaDialect": "https://json-schema.org/draft/2020-12/schema"
 }
