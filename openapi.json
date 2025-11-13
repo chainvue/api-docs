@@ -92,6 +92,16 @@
             }
           },
           {
+            "name": "fields",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated fields to return",
+            "schema": {
+              "example": "hash,block_height,timestamp",
+              "type": "string"
+            }
+          },
+          {
             "name": "If-None-Match",
             "in": "header",
             "description": "Send previous ETag to receive 304 Not Modified when unchanged",
@@ -111,18 +121,41 @@
                   "type": "string"
                 }
               },
-              "Cache-Control": {
-                "description": "HTTP caching policy for this response",
+              "X-Request-Id": {
+                "description": "Unique request identifier for tracing",
                 "schema": {
                   "type": "string"
-                },
-                "example": "public, max-age=10"
+                }
               }
             },
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PaginatedBlocksDto"
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "enum": [
+                        "list"
+                      ]
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/BlockDetailDto"
+                      }
+                    },
+                    "limit": {
+                      "type": "number"
+                    },
+                    "next_cursor": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "has_more": {
+                      "type": "boolean"
+                    }
+                  }
                 }
               }
             }
@@ -172,6 +205,16 @@
             }
           },
           {
+            "name": "fields",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated fields to return",
+            "schema": {
+              "example": "hash,block_height,timestamp",
+              "type": "string"
+            }
+          },
+          {
             "name": "If-None-Match",
             "in": "header",
             "description": "Send previous ETag to receive 304 Not Modified when unchanged",
@@ -191,12 +234,11 @@
                   "type": "string"
                 }
               },
-              "Cache-Control": {
-                "description": "HTTP caching policy for this response",
+              "X-Request-Id": {
+                "description": "Unique request identifier for tracing",
                 "schema": {
                   "type": "string"
-                },
-                "example": "public, max-age=10, s-maxage=10, must-revalidate"
+                }
               }
             }
           },
@@ -255,6 +297,16 @@
             }
           },
           {
+            "name": "fields",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated fields to return",
+            "schema": {
+              "example": "hash,block_height,timestamp",
+              "type": "string"
+            }
+          },
+          {
             "name": "If-None-Match",
             "in": "header",
             "description": "Send previous ETag to receive 304 Not Modified when unchanged",
@@ -274,12 +326,11 @@
                   "type": "string"
                 }
               },
-              "Cache-Control": {
-                "description": "HTTP caching policy for this response",
+              "X-Request-Id": {
+                "description": "Unique request identifier for tracing",
                 "schema": {
                   "type": "string"
-                },
-                "example": "public, max-age=31536000, immutable"
+                }
               }
             }
           },
@@ -408,6 +459,16 @@
             }
           },
           {
+            "name": "fields",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated fields to return",
+            "schema": {
+              "example": "txid,timestamp,type",
+              "type": "string"
+            }
+          },
+          {
             "name": "If-None-Match",
             "in": "header",
             "description": "Send previous ETag to receive 304 Not Modified when unchanged",
@@ -427,18 +488,41 @@
                   "type": "string"
                 }
               },
-              "Cache-Control": {
-                "description": "HTTP caching policy for this response",
+              "X-Request-Id": {
+                "description": "Unique request identifier for tracing",
                 "schema": {
                   "type": "string"
-                },
-                "example": "public, max-age=10"
+                }
               }
             },
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PaginatedTransactionsDto"
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "enum": [
+                        "list"
+                      ]
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ParsedTransactionDto"
+                      }
+                    },
+                    "limit": {
+                      "type": "number"
+                    },
+                    "next_cursor": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "has_more": {
+                      "type": "boolean"
+                    }
+                  }
                 }
               }
             }
@@ -498,6 +582,16 @@
             }
           },
           {
+            "name": "fields",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated fields to return",
+            "schema": {
+              "example": "txid,timestamp,type",
+              "type": "string"
+            }
+          },
+          {
             "name": "If-None-Match",
             "in": "header",
             "description": "Send previous ETag to receive 304 Not Modified when unchanged",
@@ -517,12 +611,11 @@
                   "type": "string"
                 }
               },
-              "Cache-Control": {
-                "description": "HTTP caching policy for this response",
+              "X-Request-Id": {
+                "description": "Unique request identifier for tracing",
                 "schema": {
                   "type": "string"
-                },
-                "example": "public, max-age=31536000, immutable"
+                }
               }
             },
             "content": {
@@ -1665,6 +1758,16 @@
             }
           },
           {
+            "name": "fields",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated fields to return",
+            "schema": {
+              "example": "name,i_address,created_at",
+              "type": "string"
+            }
+          },
+          {
             "name": "If-None-Match",
             "in": "header",
             "description": "Send previous ETag to receive 304 Not Modified when unchanged",
@@ -1684,18 +1787,41 @@
                   "type": "string"
                 }
               },
-              "Cache-Control": {
-                "description": "HTTP caching policy",
+              "X-Request-Id": {
+                "description": "Unique request identifier for tracing",
                 "schema": {
                   "type": "string"
-                },
-                "example": "public, max-age=10"
+                }
               }
             },
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PaginatedIdentitiesDto"
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "enum": [
+                        "list"
+                      ]
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/IdentityListItemDto"
+                      }
+                    },
+                    "limit": {
+                      "type": "number"
+                    },
+                    "next_cursor": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "has_more": {
+                      "type": "boolean"
+                    }
+                  }
                 }
               }
             }
@@ -1812,6 +1938,16 @@
             }
           },
           {
+            "name": "fields",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated fields to return",
+            "schema": {
+              "example": "id,identity_name,timestamp,event_type",
+              "type": "string"
+            }
+          },
+          {
             "name": "If-None-Match",
             "in": "header",
             "description": "Send previous ETag to receive 304 Not Modified when unchanged",
@@ -1831,18 +1967,41 @@
                   "type": "string"
                 }
               },
-              "Cache-Control": {
-                "description": "HTTP caching policy",
+              "X-Request-Id": {
+                "description": "Unique request identifier for tracing",
                 "schema": {
                   "type": "string"
-                },
-                "example": "public, max-age=10"
+                }
               }
             },
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PaginatedIdentityUpdatesDto"
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "enum": [
+                        "list"
+                      ]
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/IdentityUpdateEventDto"
+                      }
+                    },
+                    "limit": {
+                      "type": "number"
+                    },
+                    "next_cursor": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "has_more": {
+                      "type": "boolean"
+                    }
+                  }
                 }
               }
             }
@@ -1896,6 +2055,16 @@
             }
           },
           {
+            "name": "fields",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated fields to return",
+            "schema": {
+              "example": "name,i_address,primary_addresses",
+              "type": "string"
+            }
+          },
+          {
             "name": "If-None-Match",
             "in": "header",
             "description": "Send previous ETag to receive 304 Not Modified when unchanged",
@@ -1915,12 +2084,11 @@
                   "type": "string"
                 }
               },
-              "Cache-Control": {
-                "description": "HTTP caching policy",
+              "X-Request-Id": {
+                "description": "Unique request identifier for tracing",
                 "schema": {
                   "type": "string"
-                },
-                "example": "public, max-age=31536000, immutable"
+                }
               }
             },
             "content": {
@@ -2003,6 +2171,16 @@
             }
           },
           {
+            "name": "fields",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated fields to return",
+            "schema": {
+              "example": "name,i_address,primary_addresses",
+              "type": "string"
+            }
+          },
+          {
             "name": "If-None-Match",
             "in": "header",
             "description": "Send previous ETag to receive 304 Not Modified when unchanged",
@@ -2022,12 +2200,11 @@
                   "type": "string"
                 }
               },
-              "Cache-Control": {
-                "description": "HTTP caching policy",
+              "X-Request-Id": {
+                "description": "Unique request identifier for tracing",
                 "schema": {
                   "type": "string"
-                },
-                "example": "public, max-age=10"
+                }
               }
             },
             "content": {
@@ -2211,6 +2388,16 @@
             }
           },
           {
+            "name": "fields",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated fields to return",
+            "schema": {
+              "example": "id,identity_name,timestamp,event_type",
+              "type": "string"
+            }
+          },
+          {
             "name": "If-None-Match",
             "in": "header",
             "description": "Send previous ETag to receive 304 Not Modified when unchanged",
@@ -2230,18 +2417,41 @@
                   "type": "string"
                 }
               },
-              "Cache-Control": {
-                "description": "HTTP caching policy",
+              "X-Request-Id": {
+                "description": "Unique request identifier for tracing",
                 "schema": {
                   "type": "string"
-                },
-                "example": "public, max-age=10"
+                }
               }
             },
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PaginatedIdentityUpdatesDto"
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "enum": [
+                        "list"
+                      ]
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/IdentityUpdateEventDto"
+                      }
+                    },
+                    "limit": {
+                      "type": "number"
+                    },
+                    "next_cursor": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "has_more": {
+                      "type": "boolean"
+                    }
+                  }
                 }
               }
             }
@@ -2288,6 +2498,16 @@
             }
           },
           {
+            "name": "fields",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated fields to return",
+            "schema": {
+              "example": "minSigs,primaryAddresses,recoveryAuthority",
+              "type": "string"
+            }
+          },
+          {
             "name": "If-None-Match",
             "in": "header",
             "description": "Send previous ETag to receive 304 Not Modified when unchanged",
@@ -2307,12 +2527,11 @@
                   "type": "string"
                 }
               },
-              "Cache-Control": {
-                "description": "HTTP caching policy",
+              "X-Request-Id": {
+                "description": "Unique request identifier for tracing",
                 "schema": {
                   "type": "string"
-                },
-                "example": "public, max-age=31536000, immutable"
+                }
               }
             },
             "content": {
@@ -2438,6 +2657,16 @@
             }
           },
           {
+            "name": "fields",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated fields to return",
+            "schema": {
+              "example": "txid,timestamp,type",
+              "type": "string"
+            }
+          },
+          {
             "name": "If-None-Match",
             "in": "header",
             "description": "Send previous ETag to receive 304 Not Modified when unchanged",
@@ -2457,18 +2686,41 @@
                   "type": "string"
                 }
               },
-              "Cache-Control": {
-                "description": "HTTP caching policy",
+              "X-Request-Id": {
+                "description": "Unique request identifier for tracing",
                 "schema": {
                   "type": "string"
-                },
-                "example": "public, max-age=10"
+                }
               }
             },
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PaginatedTransactionsDto"
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "enum": [
+                        "list"
+                      ]
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ParsedTransactionDto"
+                      }
+                    },
+                    "limit": {
+                      "type": "number"
+                    },
+                    "next_cursor": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "has_more": {
+                      "type": "boolean"
+                    }
+                  }
                 }
               }
             }
@@ -2550,11 +2802,29 @@
               "example": false,
               "type": "boolean"
             }
+          },
+          {
+            "name": "fields",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated fields to return",
+            "schema": {
+              "example": "address,balance,tx_count",
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "Address summary retrieved successfully",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Unique request identifier for tracing",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -2636,6 +2906,16 @@
             }
           },
           {
+            "name": "fields",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated fields to return",
+            "schema": {
+              "example": "type,name,address",
+              "type": "string"
+            }
+          },
+          {
             "name": "offset",
             "required": false,
             "in": "query",
@@ -2659,10 +2939,39 @@
         "responses": {
           "200": {
             "description": "Search results retrieved successfully",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Unique request identifier for tracing",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PaginatedSearchResultsDto"
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "enum": [
+                        "list"
+                      ]
+                    },
+                    "data": {
+                      "type": "array"
+                    },
+                    "limit": {
+                      "type": "number"
+                    },
+                    "next_cursor": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "has_more": {
+                      "type": "boolean"
+                    }
+                  }
                 }
               }
             }
@@ -2690,16 +2999,48 @@
       "get": {
         "operationId": "ChainsController_getChainMetadata",
         "summary": "List available chains with current block heights",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "fields",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated fields to return",
+            "schema": {
+              "example": "chain_id,chain_name,blocks",
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Chain metadata retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ChainMetadataDto"
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "enum": [
+                        "list"
+                      ]
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ChainMetadataDto"
+                      }
+                    },
+                    "limit": {
+                      "type": "number"
+                    },
+                    "next_cursor": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "has_more": {
+                      "type": "boolean"
+                    }
                   }
                 }
               }
@@ -2730,145 +3071,6 @@
   ],
   "components": {
     "schemas": {
-      "BlockLinksDto": {
-        "type": "object",
-        "properties": {
-          "self": {
-            "type": "string",
-            "description": "Link to this block"
-          },
-          "block": {
-            "type": "string",
-            "description": "Link to parent block",
-            "nullable": true
-          }
-        },
-        "required": [
-          "self"
-        ]
-      },
-      "BlockDetailDto": {
-        "type": "object",
-        "properties": {
-          "block_height": {
-            "type": "integer",
-            "description": "Block height",
-            "example": 798100
-          },
-          "chain_id": {
-            "type": "string",
-            "description": "Chain ID",
-            "example": "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq"
-          },
-          "hash": {
-            "type": "string",
-            "description": "Block hash",
-            "example": "0000000000000000000000000000000000000000000000000000000000000000"
-          },
-          "timestamp": {
-            "type": "string",
-            "description": "Block timestamp",
-            "format": "date-time",
-            "example": "2025-11-12T10:30:00Z"
-          },
-          "tx_count": {
-            "type": "integer",
-            "description": "Transaction count",
-            "example": 5
-          },
-          "difficulty": {
-            "type": "number",
-            "description": "Difficulty",
-            "example": 1234567.89,
-            "nullable": true
-          },
-          "size": {
-            "type": "integer",
-            "description": "Block size in bytes",
-            "example": 2048,
-            "nullable": true
-          },
-          "parent_hash": {
-            "type": "string",
-            "description": "Parent block hash",
-            "example": "0000000000000000000000000000000000000000000000000000000000000000"
-          },
-          "merkleroot": {
-            "type": "string",
-            "description": "Merkle root",
-            "example": "0000000000000000000000000000000000000000000000000000000000000000"
-          },
-          "version": {
-            "type": "integer",
-            "description": "Block version",
-            "example": 4,
-            "nullable": true
-          },
-          "types": {
-            "description": "Transaction types in this block",
-            "example": [
-              "coinbase",
-              "standard"
-            ],
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "_links": {
-            "description": "HATEOAS links",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/BlockLinksDto"
-              }
-            ]
-          }
-        },
-        "required": [
-          "block_height",
-          "chain_id",
-          "hash",
-          "timestamp",
-          "tx_count",
-          "parent_hash",
-          "merkleroot",
-          "types",
-          "_links"
-        ]
-      },
-      "PaginatedBlocksDto": {
-        "type": "object",
-        "properties": {
-          "items": {
-            "description": "Array of blocks",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/BlockDetailDto"
-            }
-          },
-          "limit": {
-            "type": "integer",
-            "description": "Number of items per page",
-            "example": 25,
-            "minimum": 1,
-            "maximum": 5000
-          },
-          "next_cursor": {
-            "type": "string",
-            "description": "Opaque cursor for next page, or null if no more results",
-            "example": "eyJyZXNvdXJjZSI6ImJsb2NrcyIsImNoYWluX2lkIjoiaUpoQ2V6QkV4Skh2dHlIM2ZHaE5udDJOaFU0WnRrZjJ5cSIsInNvcnQiOiJoZWlnaHRfZGVzYyIsInNpbmNlIjpudWxsLCJ1bnRpbCI6bnVsbCwibWluX2hlaWdodCI6bnVsbCwibWF4X2hlaWdodCI6bnVsbCwiY3Vyc29yX2hlaWdodCI6Nzk4MDk5fQ",
-            "nullable": true
-          }
-        },
-        "required": [
-          "items",
-          "limit"
-        ]
-      },
-      "PaginatedTransactionsDto": {
-        "type": "object",
-        "properties": {}
-      },
       "ParsedTransactionDto": {
         "type": "object",
         "properties": {}
@@ -3350,6 +3552,26 @@
           "peak_day"
         ]
       },
+      "MetricsDto": {
+        "type": "object",
+        "properties": {
+          "tx_count": {
+            "type": "number",
+            "description": "Total transaction count",
+            "example": 42
+          },
+          "last_activity": {
+            "type": "string",
+            "description": "Timestamp of last activity",
+            "format": "date-time",
+            "example": "2025-11-06T12:00:00Z",
+            "nullable": true
+          }
+        },
+        "required": [
+          "tx_count"
+        ]
+      },
       "LinksDto": {
         "type": "object",
         "properties": {
@@ -3385,246 +3607,6 @@
         },
         "required": [
           "self"
-        ]
-      },
-      "IdentityListItemDto": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "Fully qualified identity name (name@chain)",
-            "example": "Mike@"
-          },
-          "i_address": {
-            "type": "string",
-            "description": "Identity address (i-address)",
-            "example": "iD3vGW9F8QGmPE9yR7jN5X2nS8tK1mH6wL4pC3qZ"
-          },
-          "chain_id": {
-            "type": "string",
-            "description": "Chain ID where this identity exists",
-            "example": "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq"
-          },
-          "created_at": {
-            "type": "string",
-            "description": "Timestamp when identity was created",
-            "format": "date-time",
-            "example": "2024-01-15T10:30:00Z"
-          },
-          "last_updated": {
-            "type": "string",
-            "description": "Timestamp of last identity update",
-            "format": "date-time",
-            "example": "2025-01-20T15:45:00Z",
-            "nullable": true
-          },
-          "update_count": {
-            "type": "integer",
-            "description": "Number of times this identity has been updated",
-            "example": 3
-          },
-          "flags": {
-            "description": "Identity flags",
-            "example": [
-              "active",
-              "revocable"
-            ],
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "primary_addresses": {
-            "description": "Primary addresses associated with this identity",
-            "example": [
-              "RCG8KwJNDVwpUBcdoa6AoHqHVJsA1uMYMR"
-            ],
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "_links": {
-            "description": "HATEOAS links to related resources",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/LinksDto"
-              }
-            ]
-          }
-        },
-        "required": [
-          "name",
-          "i_address",
-          "chain_id",
-          "created_at",
-          "last_updated",
-          "update_count",
-          "flags",
-          "primary_addresses",
-          "_links"
-        ]
-      },
-      "PaginatedIdentitiesDto": {
-        "type": "object",
-        "properties": {
-          "items": {
-            "description": "Array of identities",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/IdentityListItemDto"
-            }
-          },
-          "limit": {
-            "type": "integer",
-            "description": "Number of items per page",
-            "example": 25
-          },
-          "next_cursor": {
-            "type": "string",
-            "description": "Opaque cursor for next page, or null if no more results",
-            "example": "eyJyZXNvdXJjZSI6ImlkZW50aXRpZXMiLCJjaGFpbl9pZCI6ImlKaENlekJFe...",
-            "nullable": true
-          }
-        },
-        "required": [
-          "items",
-          "limit",
-          "next_cursor"
-        ]
-      },
-      "IdentityUpdateEventDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "description": "Unique update event ID",
-            "example": 12345
-          },
-          "chain_id": {
-            "type": "string",
-            "description": "Chain ID where this update occurred",
-            "example": "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq"
-          },
-          "identity_address": {
-            "type": "string",
-            "description": "Identity address (i-address)",
-            "example": "iD3vGW9F8QGmPE9yR7jN5X2nS8tK1mH6wL4pC3qZ"
-          },
-          "identity_name": {
-            "type": "string",
-            "description": "Identity name",
-            "example": "Mike@"
-          },
-          "block_height": {
-            "type": "integer",
-            "description": "Block height where update was confirmed",
-            "example": 4500000
-          },
-          "txid": {
-            "type": "string",
-            "description": "Transaction ID containing this update",
-            "example": "a1b2c3d4e5f6..."
-          },
-          "update_number": {
-            "type": "integer",
-            "description": "Update number (0 = registration, >0 = nth update)",
-            "example": 2
-          },
-          "timestamp": {
-            "type": "string",
-            "description": "Timestamp of update",
-            "format": "date-time",
-            "example": "2025-01-15T10:30:00Z"
-          },
-          "content_keys": {
-            "description": "Keys of fields that were updated",
-            "example": [
-              "primary_addresses",
-              "recovery_authority"
-            ],
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "event_type": {
-            "type": "string",
-            "description": "Event type classification",
-            "enum": [
-              "registration",
-              "update",
-              "authority_update",
-              "timelock_set",
-              "revocation"
-            ],
-            "example": "authority_update"
-          },
-          "diff_summary": {
-            "type": "object",
-            "description": "Human-friendly summary of changes",
-            "nullable": true
-          }
-        },
-        "required": [
-          "id",
-          "chain_id",
-          "identity_address",
-          "identity_name",
-          "block_height",
-          "txid",
-          "update_number",
-          "timestamp",
-          "content_keys",
-          "event_type"
-        ]
-      },
-      "PaginatedIdentityUpdatesDto": {
-        "type": "object",
-        "properties": {
-          "items": {
-            "description": "Array of identity update events",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/IdentityUpdateEventDto"
-            }
-          },
-          "limit": {
-            "type": "integer",
-            "description": "Number of items per page",
-            "example": 25
-          },
-          "next_cursor": {
-            "type": "string",
-            "description": "Opaque cursor for next page, or null if no more results",
-            "example": "eyJyZXNvdXJjZSI6ImlkZW50aXR5X3VwZGF0ZXMiLCJjaGFpbl9pZCI6Ii4uLiJ9",
-            "nullable": true
-          }
-        },
-        "required": [
-          "items",
-          "limit",
-          "next_cursor"
-        ]
-      },
-      "MetricsDto": {
-        "type": "object",
-        "properties": {
-          "tx_count": {
-            "type": "number",
-            "description": "Total transaction count",
-            "example": 42
-          },
-          "last_activity": {
-            "type": "string",
-            "description": "Timestamp of last activity",
-            "format": "date-time",
-            "example": "2025-11-06T12:00:00Z",
-            "nullable": true
-          }
-        },
-        "required": [
-          "tx_count"
         ]
       },
       "IdentitySummaryDto": {
@@ -3946,114 +3928,6 @@
         "required": [
           "code",
           "message"
-        ]
-      },
-      "SearchResultDto": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string",
-            "description": "Type of search result",
-            "enum": [
-              "identity",
-              "address",
-              "transaction",
-              "block",
-              "currency"
-            ],
-            "example": "identity"
-          },
-          "value": {
-            "type": "string",
-            "description": "Value/identifier of the result",
-            "example": "Mike@"
-          },
-          "description": {
-            "type": "string",
-            "description": "Human-readable description",
-            "example": "Verus identity registered on Jan 15, 2024"
-          },
-          "link": {
-            "type": "string",
-            "description": "Link to the resource",
-            "example": "/v1/identities/Mike"
-          }
-        },
-        "required": [
-          "type",
-          "value",
-          "description",
-          "link"
-        ]
-      },
-      "PaginatedSearchResultsDto": {
-        "type": "object",
-        "properties": {
-          "total": {
-            "type": "number",
-            "description": "Total number of search results",
-            "example": 42
-          },
-          "limit": {
-            "type": "number",
-            "description": "Number of results per page",
-            "example": 10
-          },
-          "offset": {
-            "type": "number",
-            "description": "Pagination offset",
-            "example": 0
-          },
-          "has_more": {
-            "type": "boolean",
-            "description": "Whether more results are available",
-            "example": true
-          },
-          "results": {
-            "description": "Array of search results",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/SearchResultDto"
-            }
-          }
-        },
-        "required": [
-          "total",
-          "limit",
-          "offset",
-          "has_more",
-          "results"
-        ]
-      },
-      "ChainMetadataDto": {
-        "type": "object",
-        "properties": {
-          "chain_id": {
-            "type": "string",
-            "description": "Chain ID (i-address)",
-            "example": "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq"
-          },
-          "chain_name": {
-            "type": "string",
-            "description": "Human-readable chain name",
-            "example": "Verus Testnet"
-          },
-          "network": {
-            "type": "string",
-            "description": "Network type",
-            "example": "mainnet"
-          },
-          "blocks": {
-            "type": "number",
-            "description": "Current block height for this chain",
-            "example": 4500000
-          }
-        },
-        "required": [
-          "chain_id",
-          "chain_name",
-          "network",
-          "blocks"
         ]
       }
     }
