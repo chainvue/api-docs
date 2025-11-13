@@ -2740,6 +2740,407 @@
         ]
       }
     },
+    "/tv/config": {
+      "get": {
+        "operationId": "TvController_getConfig",
+        "summary": "Get UDF configuration",
+        "description": "Returns TradingView UDF configuration including supported exchanges, resolutions, and features",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "UDF configuration",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TvConfigResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "TradingView UDF"
+        ]
+      }
+    },
+    "/tv/symbols": {
+      "get": {
+        "operationId": "TvController_getSymbol",
+        "summary": "Get symbol metadata",
+        "description": "Returns symbol information for a given trading pair",
+        "parameters": [
+          {
+            "name": "symbol",
+            "required": true,
+            "in": "query",
+            "description": "Symbol in format CHAIN:BASE/QUOTE",
+            "schema": {
+              "example": "vrsctest:i5PehtStE8dxdM53dhicjD6FcuGzvFoH2C/iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Symbol metadata",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TvSymbolResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid symbol format"
+          },
+          "404": {
+            "description": "Symbol not found"
+          }
+        },
+        "tags": [
+          "TradingView UDF"
+        ]
+      }
+    },
+    "/tv/search": {
+      "get": {
+        "operationId": "TvController_search",
+        "summary": "Search for symbols",
+        "description": "Search for trading pairs matching the query",
+        "parameters": [
+          {
+            "name": "query",
+            "required": true,
+            "in": "query",
+            "description": "Search query string",
+            "schema": {
+              "example": "vrsctest:i5PehtStE8dxdM53dhicjD6FcuGzvFoH2C/iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq",
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "description": "Symbol type filter",
+            "schema": {
+              "example": "crypto",
+              "type": "string"
+            }
+          },
+          {
+            "name": "exchange",
+            "required": false,
+            "in": "query",
+            "description": "Exchange filter",
+            "schema": {
+              "example": "VERUS",
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of results",
+            "schema": {
+              "example": "30",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of matching symbols",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TvSearchItem"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "TradingView UDF"
+        ]
+      }
+    },
+    "/tv/history": {
+      "get": {
+        "operationId": "TvController_getHistory",
+        "summary": "Get historical OHLCV data",
+        "description": "Returns historical candle data for the specified symbol, resolution, and time range",
+        "parameters": [
+          {
+            "name": "symbol",
+            "required": true,
+            "in": "query",
+            "description": "Symbol in format CHAIN:BASE/QUOTE",
+            "schema": {
+              "example": "vrsctest:i5PehtStE8dxdM53dhicjD6FcuGzvFoH2C/iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq",
+              "type": "string"
+            }
+          },
+          {
+            "name": "resolution",
+            "required": true,
+            "in": "query",
+            "description": "Candle resolution",
+            "schema": {
+              "enum": [
+                "1",
+                "5",
+                "15",
+                "60",
+                "240",
+                "1D",
+                "1W"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "required": true,
+            "in": "query",
+            "description": "Start timestamp (Unix seconds)",
+            "schema": {
+              "format": "int64",
+              "example": "1723485600",
+              "type": "integer"
+            }
+          },
+          {
+            "name": "to",
+            "required": true,
+            "in": "query",
+            "description": "End timestamp (Unix seconds)",
+            "schema": {
+              "format": "int64",
+              "example": "1723571999",
+              "type": "integer"
+            }
+          },
+          {
+            "name": "countback",
+            "required": false,
+            "in": "query",
+            "description": "Number of bars to return (overrides from)",
+            "schema": {
+              "example": "300",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OHLCV data arrays or no_data response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/TvHistoryOkResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/TvHistoryNoDataResponse"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters"
+          }
+        },
+        "tags": [
+          "TradingView UDF"
+        ]
+      }
+    },
+    "/tv/time": {
+      "get": {
+        "operationId": "TvController_getTime",
+        "summary": "Get server time",
+        "description": "Returns current server time as Unix timestamp",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Current server time",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TvTimeResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "TradingView UDF"
+        ]
+      }
+    },
+    "/tv/marks": {
+      "get": {
+        "operationId": "TvController_getMarks",
+        "summary": "Get marks",
+        "description": "Returns marks for the specified symbol and time range (stub implementation)",
+        "parameters": [
+          {
+            "name": "symbol",
+            "required": true,
+            "in": "query",
+            "description": "Symbol in format CHAIN:BASE/QUOTE",
+            "schema": {
+              "example": "vrsctest:i5PehtStE8dxdM53dhicjD6FcuGzvFoH2C/iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq",
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "required": true,
+            "in": "query",
+            "description": "Start timestamp (Unix seconds)",
+            "schema": {
+              "format": "int64",
+              "example": "1723485600",
+              "type": "integer"
+            }
+          },
+          {
+            "name": "to",
+            "required": true,
+            "in": "query",
+            "description": "End timestamp (Unix seconds)",
+            "schema": {
+              "format": "int64",
+              "example": "1723571999",
+              "type": "integer"
+            }
+          },
+          {
+            "name": "resolution",
+            "required": true,
+            "in": "query",
+            "description": "Candle resolution",
+            "schema": {
+              "enum": [
+                "1",
+                "5",
+                "15",
+                "60",
+                "240",
+                "1D",
+                "1W"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of marks",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TvMark"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "TradingView UDF"
+        ]
+      }
+    },
+    "/tv/timescale_marks": {
+      "get": {
+        "operationId": "TvController_getTimescaleMarks",
+        "summary": "Get timescale marks",
+        "description": "Returns timescale marks for the specified symbol and time range (stub implementation)",
+        "parameters": [
+          {
+            "name": "symbol",
+            "required": true,
+            "in": "query",
+            "description": "Symbol in format CHAIN:BASE/QUOTE",
+            "schema": {
+              "example": "vrsctest:i5PehtStE8dxdM53dhicjD6FcuGzvFoH2C/iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq",
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "required": true,
+            "in": "query",
+            "description": "Start timestamp (Unix seconds)",
+            "schema": {
+              "format": "int64",
+              "example": "1723485600",
+              "type": "integer"
+            }
+          },
+          {
+            "name": "to",
+            "required": true,
+            "in": "query",
+            "description": "End timestamp (Unix seconds)",
+            "schema": {
+              "format": "int64",
+              "example": "1723571999",
+              "type": "integer"
+            }
+          },
+          {
+            "name": "resolution",
+            "required": true,
+            "in": "query",
+            "description": "Candle resolution",
+            "schema": {
+              "enum": [
+                "1",
+                "5",
+                "15",
+                "60",
+                "240",
+                "1D",
+                "1W"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of timescale marks",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TvTimescaleMark"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "TradingView UDF"
+        ]
+      }
+    },
     "/health": {
       "get": {
         "operationId": "HealthController_getHealth",
@@ -3843,6 +4244,434 @@
           "is_locked",
           "last_authority_update",
           "_links"
+        ]
+      },
+      "TvHistoryOkResponse": {
+        "type": "object",
+        "properties": {
+          "s": {
+            "type": "string",
+            "example": "ok"
+          },
+          "t": {
+            "example": [
+              1723485600,
+              1723485660,
+              1723485720
+            ],
+            "description": "Array of timestamps (Unix seconds)",
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "o": {
+            "example": [
+              1.0002,
+              1.0003,
+              1.0001
+            ],
+            "description": "Array of open prices",
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "h": {
+            "example": [
+              1.0004,
+              1.0005,
+              1.0003
+            ],
+            "description": "Array of high prices",
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "l": {
+            "example": [
+              1.0001,
+              1.0002,
+              1
+            ],
+            "description": "Array of low prices",
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "c": {
+            "example": [
+              1.0003,
+              1.0004,
+              1.0002
+            ],
+            "description": "Array of close prices",
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "v": {
+            "example": [
+              124.5,
+              98.3,
+              156.7
+            ],
+            "description": "Array of volumes",
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "s",
+          "t",
+          "o",
+          "h",
+          "l",
+          "c",
+          "v"
+        ]
+      },
+      "TvHistoryNoDataResponse": {
+        "type": "object",
+        "properties": {
+          "s": {
+            "type": "string",
+            "example": "no_data"
+          },
+          "nextTime": {
+            "type": "integer",
+            "example": 1723485600,
+            "format": "int64",
+            "nullable": true
+          }
+        },
+        "required": [
+          "s"
+        ]
+      },
+      "TvMark": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique mark identifier",
+            "example": "mark_1"
+          },
+          "time": {
+            "type": "integer",
+            "description": "Mark timestamp (Unix seconds)",
+            "example": 1723485600,
+            "format": "int64"
+          },
+          "color": {
+            "type": "string",
+            "description": "Mark color (e.g., \"red\", \"#FF0000\")",
+            "example": "red"
+          },
+          "label": {
+            "type": "string",
+            "description": "Short label text",
+            "example": "H"
+          },
+          "labelFontColor": {
+            "type": "string",
+            "description": "Label font color",
+            "example": "white"
+          },
+          "minSize": {
+            "type": "number",
+            "description": "Minimum size in pixels",
+            "example": 14
+          },
+          "text": {
+            "type": "string",
+            "description": "Full text content",
+            "example": "Important event"
+          }
+        },
+        "required": [
+          "id",
+          "time",
+          "color",
+          "label",
+          "text"
+        ]
+      },
+      "TvTimescaleMark": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique mark identifier",
+            "example": "tsmark_1"
+          },
+          "time": {
+            "type": "integer",
+            "description": "Mark timestamp (Unix seconds)",
+            "example": 1723485600,
+            "format": "int64"
+          },
+          "color": {
+            "type": "string",
+            "description": "Mark color (e.g., \"red\", \"#FF0000\")",
+            "example": "blue"
+          },
+          "label": {
+            "type": "string",
+            "description": "Short label text",
+            "example": "E"
+          },
+          "tooltip": {
+            "type": "string",
+            "description": "Tooltip text shown on hover",
+            "example": "Event occurred at this time"
+          }
+        },
+        "required": [
+          "id",
+          "time",
+          "color",
+          "label",
+          "tooltip"
+        ]
+      },
+      "TvExchange": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string",
+            "example": "VERUS"
+          },
+          "name": {
+            "type": "string",
+            "example": "Verus"
+          },
+          "desc": {
+            "type": "string",
+            "example": "Verus Testnet"
+          }
+        },
+        "required": [
+          "value",
+          "name",
+          "desc"
+        ]
+      },
+      "TvSymbolType": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "crypto"
+          },
+          "value": {
+            "type": "string",
+            "example": "crypto"
+          }
+        },
+        "required": [
+          "name",
+          "value"
+        ]
+      },
+      "TvConfigResponse": {
+        "type": "object",
+        "properties": {
+          "supports_search": {
+            "type": "boolean",
+            "example": true
+          },
+          "supports_group_request": {
+            "type": "boolean",
+            "example": false
+          },
+          "supports_marks": {
+            "type": "boolean",
+            "example": true
+          },
+          "supports_timescale_marks": {
+            "type": "boolean",
+            "example": true
+          },
+          "supports_time": {
+            "type": "boolean",
+            "example": true
+          },
+          "exchanges": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TvExchange"
+            }
+          },
+          "symbols_types": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TvSymbolType"
+            }
+          },
+          "supported_resolutions": {
+            "example": [
+              "1",
+              "5",
+              "15",
+              "60",
+              "240",
+              "1D",
+              "1W"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "supports_search",
+          "supports_group_request",
+          "supports_marks",
+          "supports_timescale_marks",
+          "supports_time",
+          "exchanges",
+          "symbols_types",
+          "supported_resolutions"
+        ]
+      },
+      "TvSymbolResponse": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "vlotto/VRSCTEST"
+          },
+          "ticker": {
+            "type": "string",
+            "example": "vrsctest:vlotto/VRSCTEST"
+          },
+          "description": {
+            "type": "string",
+            "example": "Verus pair on chain"
+          },
+          "type": {
+            "type": "string",
+            "example": "crypto"
+          },
+          "exchange": {
+            "type": "string",
+            "example": "VERUS"
+          },
+          "session": {
+            "type": "string",
+            "example": "24x7"
+          },
+          "timezone": {
+            "type": "string",
+            "example": "Etc/UTC"
+          },
+          "minmov": {
+            "type": "number",
+            "example": 1
+          },
+          "pricescale": {
+            "type": "number",
+            "example": 100000000
+          },
+          "has_intraday": {
+            "type": "boolean",
+            "example": true
+          },
+          "has_daily": {
+            "type": "boolean",
+            "example": true
+          },
+          "has_weekly_and_monthly": {
+            "type": "boolean",
+            "example": true
+          },
+          "supported_resolutions": {
+            "example": [
+              "1",
+              "5",
+              "15",
+              "60",
+              "240",
+              "1D",
+              "1W"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "data_status": {
+            "type": "string",
+            "example": "streaming"
+          }
+        },
+        "required": [
+          "name",
+          "ticker",
+          "description",
+          "type",
+          "exchange",
+          "session",
+          "timezone",
+          "minmov",
+          "pricescale",
+          "has_intraday",
+          "has_daily",
+          "has_weekly_and_monthly",
+          "supported_resolutions",
+          "data_status"
+        ]
+      },
+      "TvSearchItem": {
+        "type": "object",
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "example": "vrsctest:vlotto/VRSCTEST"
+          },
+          "full_name": {
+            "type": "string",
+            "example": "VERUS:vlotto/VRSCTEST"
+          },
+          "description": {
+            "type": "string",
+            "example": "vlotto vs VRSCTEST on chain vrsctest"
+          },
+          "exchange": {
+            "type": "string",
+            "example": "VERUS"
+          },
+          "type": {
+            "type": "string",
+            "example": "crypto"
+          }
+        },
+        "required": [
+          "symbol",
+          "full_name",
+          "description",
+          "exchange",
+          "type"
+        ]
+      },
+      "TvTimeResponse": {
+        "type": "object",
+        "properties": {
+          "time": {
+            "type": "number",
+            "example": 1723571999,
+            "description": "Current server time (Unix seconds)"
+          }
+        },
+        "required": [
+          "time"
         ]
       },
       "AddressSummaryDto": {
