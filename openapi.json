@@ -3141,35 +3141,193 @@
         ]
       }
     },
-    "/health": {
+    "/v1/addresses": {
       "get": {
-        "operationId": "HealthController_getHealth",
-        "summary": "Health check endpoint",
-        "parameters": [],
+        "operationId": "AddressesController_listAddresses",
+        "summary": "List addresses with filters and pagination",
+        "description": "Retrieve a paginated list of addresses with optional filtering by balance, transaction count, and activity time. Supports cursor-based pagination for efficient traversal of large result sets.",
+        "parameters": [
+          {
+            "name": "chain_id",
+            "required": false,
+            "in": "query",
+            "description": "Chain ID to query (defaults to Verus Testnet)",
+            "schema": {
+              "example": "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq",
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Number of results per page (1-5000, default 25)",
+            "schema": {
+              "example": 25,
+              "type": "number"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "description": "Pagination cursor from previous response",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "description": "Sort order for results",
+            "schema": {
+              "enum": [
+                "balance_desc",
+                "balance_asc",
+                "tx_count_desc",
+                "tx_count_asc",
+                "last_seen_desc",
+                "last_seen_asc"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "min_balance",
+            "required": false,
+            "in": "query",
+            "description": "Minimum balance filter (inclusive)",
+            "schema": {
+              "example": "100.0",
+              "type": "string"
+            }
+          },
+          {
+            "name": "max_balance",
+            "required": false,
+            "in": "query",
+            "description": "Maximum balance filter (inclusive)",
+            "schema": {
+              "example": "10000.0",
+              "type": "string"
+            }
+          },
+          {
+            "name": "min_tx_count",
+            "required": false,
+            "in": "query",
+            "description": "Minimum transaction count filter (inclusive)",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "max_tx_count",
+            "required": false,
+            "in": "query",
+            "description": "Maximum transaction count filter (inclusive)",
+            "schema": {
+              "example": 1000,
+              "type": "number"
+            }
+          },
+          {
+            "name": "since",
+            "required": false,
+            "in": "query",
+            "description": "Filter by last_seen >= this timestamp (ISO 8601)",
+            "schema": {
+              "example": "2024-01-01T00:00:00Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "until",
+            "required": false,
+            "in": "query",
+            "description": "Filter by last_seen < this timestamp (ISO 8601)",
+            "schema": {
+              "example": "2025-01-01T00:00:00Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "fields",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated fields to return",
+            "schema": {
+              "example": "address,balance,tx_count",
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": "Service is healthy"
+            "description": "Paginated list of addresses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "example": "list"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AddressListItemDto"
+                      }
+                    },
+                    "limit": {
+                      "type": "integer",
+                      "example": 25
+                    },
+                    "next_cursor": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "has_more": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
           },
-          "503": {
-            "description": "Service is unhealthy"
+          "400": {
+            "description": "Invalid parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests"
           }
         },
         "tags": [
-          "Health"
+          "Addresses"
         ]
       }
     },
     "/v1/addresses/{address}": {
       "get": {
         "operationId": "AddressesController_getAddress",
-        "summary": "Get address summary and identity links",
-        "description": "Retrieve comprehensive address information including transaction counts, current balance, last activity timestamp, and associated Verus identities. Supports both R-addresses (transparent addresses) and i-addresses (identity addresses). Addresses must be 21-51 characters starting with R or i.",
+        "summary": "Get address summary",
+        "description": "Retrieve comprehensive address information including balance, total received/sent amounts, transaction count, and activity timestamps. Supports both R-addresses (transparent addresses) and i-addresses (identity addresses). Addresses must be 21-51 characters starting with R or i.",
         "parameters": [
           {
             "name": "address",
             "required": true,
             "in": "path",
-            "description": "Blockchain address (R-address or i-address). Must start with R or i, followed by 20-50 alphanumeric characters. Examples: RHkGRwDGXmPner8wenQNGMeYNfNZ5qKp4L (R-address) or iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq (i-address)",
+            "description": "Blockchain address (R-address or i-address). Must start with R or i, followed by 20-50 alphanumeric characters.",
             "examples": {
               "rAddress": {
                 "summary": "R-address (transparent)",
@@ -3195,16 +3353,6 @@
             }
           },
           {
-            "name": "raw",
-            "required": false,
-            "in": "query",
-            "description": "Include raw blockchain data (reserved for future use)",
-            "schema": {
-              "example": false,
-              "type": "boolean"
-            }
-          },
-          {
             "name": "fields",
             "required": false,
             "in": "query",
@@ -3218,18 +3366,27 @@
         "responses": {
           "200": {
             "description": "Address summary retrieved successfully",
-            "headers": {
-              "X-Request-Id": {
-                "description": "Unique request identifier for tracing",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AddressSummaryDto"
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "object": {
+                          "type": "string",
+                          "example": "address"
+                        },
+                        "id": {
+                          "type": "string",
+                          "example": "RCG8KwJNDVwpUBcdoa6AoHqHVJsA1uMYMR"
+                        }
+                      }
+                    },
+                    {
+                      "$ref": "#/components/schemas/AddressDetailDto"
+                    }
+                  ]
                 }
               }
             }
@@ -3260,6 +3417,195 @@
         },
         "tags": [
           "Addresses"
+        ]
+      }
+    },
+    "/v1/addresses/{address}/transactions": {
+      "get": {
+        "operationId": "AddressesController_getAddressTransactions",
+        "summary": "Get transactions for an address",
+        "description": "Retrieve a paginated list of transactions involving the specified address. Includes both sent and received transactions.",
+        "parameters": [
+          {
+            "name": "address",
+            "required": true,
+            "in": "path",
+            "description": "Blockchain address (R-address or i-address)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "chain_id",
+            "required": false,
+            "in": "query",
+            "description": "Chain ID to query (defaults to Verus Testnet)",
+            "schema": {
+              "example": "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq",
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Number of results per page (1-5000, default 25)",
+            "schema": {
+              "example": 25,
+              "type": "number"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "description": "Pagination cursor from previous response",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "description": "Sort order for results",
+            "schema": {
+              "enum": [
+                "timestamp_desc",
+                "timestamp_asc"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "since",
+            "required": false,
+            "in": "query",
+            "description": "Filter by timestamp >= this value (ISO 8601)",
+            "schema": {
+              "example": "2024-01-01T00:00:00Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "until",
+            "required": false,
+            "in": "query",
+            "description": "Filter by timestamp < this value (ISO 8601)",
+            "schema": {
+              "example": "2025-01-01T00:00:00Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "min_height",
+            "required": false,
+            "in": "query",
+            "description": "Minimum block height filter (inclusive)",
+            "schema": {
+              "example": 1000000,
+              "type": "number"
+            }
+          },
+          {
+            "name": "max_height",
+            "required": false,
+            "in": "query",
+            "description": "Maximum block height filter (inclusive)",
+            "schema": {
+              "example": 2000000,
+              "type": "number"
+            }
+          },
+          {
+            "name": "fields",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated fields to return",
+            "schema": {
+              "example": "txid,timestamp,block_height",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of transactions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "example": "list"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ParsedTransactionDto"
+                      }
+                    },
+                    "limit": {
+                      "type": "integer",
+                      "example": 25
+                    },
+                    "next_cursor": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "has_more": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Address not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests"
+          }
+        },
+        "tags": [
+          "Addresses"
+        ]
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "HealthController_getHealth",
+        "summary": "Health check endpoint",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Service is healthy"
+          },
+          "503": {
+            "description": "Service is unhealthy"
+          }
+        },
+        "tags": [
+          "Health"
         ]
       }
     },
@@ -4672,67 +5018,6 @@
         },
         "required": [
           "time"
-        ]
-      },
-      "AddressSummaryDto": {
-        "type": "object",
-        "properties": {
-          "address": {
-            "type": "string",
-            "description": "Blockchain address (R-addresses for transparent addresses, i-addresses for identity addresses)",
-            "pattern": "^[Ri][a-zA-Z0-9]{20,50}$",
-            "example": "RCG8KwJNDVwpUBcdoa6AoHqHVJsA1uMYMR"
-          },
-          "chain_id": {
-            "type": "string",
-            "description": "Chain ID where this address exists",
-            "example": "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq"
-          },
-          "tx_count": {
-            "type": "number",
-            "description": "Total transaction count for this address",
-            "example": 75
-          },
-          "balance": {
-            "type": "string",
-            "description": "Current balance",
-            "pattern": "^[0-9]+(\\.[0-9]+)?$",
-            "example": "1234.56"
-          },
-          "last_seen": {
-            "type": "string",
-            "description": "Timestamp of last activity",
-            "format": "date-time",
-            "example": "2025-11-06T12:00:00Z",
-            "nullable": true
-          },
-          "linked_identities": {
-            "description": "Identities linked to this address",
-            "example": [
-              "Mike@",
-              "Alice@"
-            ],
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "_links": {
-            "description": "HATEOAS links to related resources",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/LinksDto"
-              }
-            ]
-          }
-        },
-        "required": [
-          "address",
-          "chain_id",
-          "tx_count",
-          "balance",
-          "linked_identities",
-          "_links"
         ]
       },
       "ErrorDto": {
