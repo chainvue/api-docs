@@ -2740,6 +2740,74 @@
         ]
       }
     },
+    "/v1/identities/address/{address}/graph": {
+      "get": {
+        "operationId": "IdentitiesController_getIdentityGraph",
+        "summary": "Get identity relationship graph",
+        "description": "Returns graph data for visualizing identity relationships. Shows connections through shared primary addresses and parent-child (sub-identity) relationships.",
+        "parameters": [
+          {
+            "name": "address",
+            "required": true,
+            "in": "path",
+            "description": "Identity i-address",
+            "schema": {
+              "example": "iD3vGW9F8QGmPE9yR7jN5X2nS8tK1mH6wL4pC3qZ",
+              "type": "string"
+            }
+          },
+          {
+            "name": "chain_id",
+            "required": false,
+            "in": "query",
+            "description": "Chain ID (defaults to Verus Testnet)",
+            "schema": {
+              "example": "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Identity graph data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityGraphDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Identity not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "IDENTITY_NOT_FOUND"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Identity with address iAbc123... not found"
+                    },
+                    "details": {
+                      "type": "object",
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Identities"
+        ]
+      }
+    },
     "/tv/config": {
       "get": {
         "operationId": "TvController_getConfig",
@@ -4381,6 +4449,18 @@
             "description": "Chain ID where this identity exists",
             "example": "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq"
           },
+          "parent_id": {
+            "type": "string",
+            "description": "Parent identity address (i-address)",
+            "example": "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq",
+            "nullable": true
+          },
+          "system_id": {
+            "type": "string",
+            "description": "System identity address (i-address)",
+            "example": "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq",
+            "nullable": true
+          },
           "version": {
             "type": "integer",
             "description": "Identity version number",
@@ -4424,6 +4504,17 @@
             "items": {
               "type": "string"
             }
+          },
+          "contentmap": {
+            "type": "object",
+            "description": "Content map with arbitrary key-value data",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "example": {
+              "i5v3h9FWVdRFbNHU7DfcpGykQjRaHtMqu7": "0114e2a40d35b5bde07821be4b00e94a0c47e12ec36f1bb23c760d32d0f2e434cf"
+            },
+            "nullable": true
           },
           "balance_summary": {
             "type": "object",
@@ -4590,6 +4681,39 @@
           "is_locked",
           "last_authority_update",
           "_links"
+        ]
+      },
+      "IdentityGraphDto": {
+        "type": "object",
+        "properties": {
+          "nodes": {
+            "description": "Graph nodes (identities)",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "edges": {
+            "description": "Graph edges (relationships)",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "center": {
+            "type": "string",
+            "description": "Center identity i-address"
+          },
+          "connectionCount": {
+            "type": "number",
+            "description": "Total count of connected identities"
+          }
+        },
+        "required": [
+          "nodes",
+          "edges",
+          "center",
+          "connectionCount"
         ]
       },
       "TvHistoryOkResponse": {
