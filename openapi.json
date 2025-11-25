@@ -2808,6 +2808,278 @@
         ]
       }
     },
+    "/v1/identities/{name}/content": {
+      "get": {
+        "operationId": "IdentitiesController_getIdentityContent",
+        "summary": "Get all content for an identity",
+        "description": "Returns all VDXF key-value content stored in the identity. This includes data from both contentmap and contentmultimap fields. For each key, returns the latest version.",
+        "parameters": [
+          {
+            "name": "name",
+            "required": true,
+            "in": "path",
+            "description": "Identity name (e.g., \"ledger.vlotto@\" or \"Mike@\")",
+            "schema": {
+              "example": "ledger.vlotto@",
+              "type": "string"
+            }
+          },
+          {
+            "name": "chain_id",
+            "required": false,
+            "in": "query",
+            "description": "Chain ID (defaults to Verus Testnet)",
+            "schema": {
+              "example": "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Identity content retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "enum": [
+                        "identity_content"
+                      ]
+                    },
+                    "identity_name": {
+                      "type": "string"
+                    },
+                    "identity_address": {
+                      "type": "string"
+                    },
+                    "content": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "data": {
+                            "type": "object"
+                          },
+                          "block_height": {
+                            "type": "number"
+                          },
+                          "txid": {
+                            "type": "string"
+                          },
+                          "updated_at": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "content_keys": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Identity not found"
+          },
+          "429": {
+            "description": "Too many requests"
+          }
+        },
+        "tags": [
+          "Identities"
+        ]
+      }
+    },
+    "/v1/identities/{name}/content/keys": {
+      "get": {
+        "operationId": "IdentitiesController_getIdentityContentKeys",
+        "summary": "Get all VDXF content keys for an identity",
+        "description": "Returns a list of all VDXF keys that have content stored for this identity. Useful for discovering what data is available without fetching all content.",
+        "parameters": [
+          {
+            "name": "name",
+            "required": true,
+            "in": "path",
+            "description": "Identity name (e.g., \"ledger.vlotto@\" or \"Mike@\")",
+            "schema": {
+              "example": "ledger.vlotto@",
+              "type": "string"
+            }
+          },
+          {
+            "name": "chain_id",
+            "required": false,
+            "in": "query",
+            "description": "Chain ID (defaults to Verus Testnet)",
+            "schema": {
+              "example": "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Content keys retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "enum": [
+                        "identity_content_keys"
+                      ]
+                    },
+                    "identity_name": {
+                      "type": "string"
+                    },
+                    "identity_address": {
+                      "type": "string"
+                    },
+                    "keys": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "count": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Identity not found"
+          },
+          "429": {
+            "description": "Too many requests"
+          }
+        },
+        "tags": [
+          "Identities"
+        ]
+      }
+    },
+    "/v1/identities/{name}/content/{vdxf_key}": {
+      "get": {
+        "operationId": "IdentitiesController_getIdentityContentByKey",
+        "summary": "Get content for a specific VDXF key",
+        "description": "Returns the content stored under a specific VDXF key for an identity. Optionally include historical versions using the include_history parameter.",
+        "parameters": [
+          {
+            "name": "name",
+            "required": true,
+            "in": "path",
+            "description": "Identity name (e.g., \"ledger.vlotto@\" or \"Mike@\")",
+            "schema": {
+              "example": "ledger.vlotto@",
+              "type": "string"
+            }
+          },
+          {
+            "name": "vdxf_key",
+            "required": true,
+            "in": "path",
+            "description": "VDXF key (e.g., \"iFVPmjN213NmfaiBhAkxAJWWGtcDEoXJcU\" for vlotto ledger data)",
+            "schema": {
+              "example": "iFVPmjN213NmfaiBhAkxAJWWGtcDEoXJcU",
+              "type": "string"
+            }
+          },
+          {
+            "name": "chain_id",
+            "required": false,
+            "in": "query",
+            "description": "Chain ID (defaults to Verus Testnet)",
+            "schema": {
+              "example": "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq",
+              "type": "string"
+            }
+          },
+          {
+            "name": "include_history",
+            "required": false,
+            "in": "query",
+            "description": "Include historical versions",
+            "schema": {
+              "example": false,
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "history_limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum historical versions to return (1-100, default 10)",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Content retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "enum": [
+                        "identity_content_item"
+                      ]
+                    },
+                    "identity_name": {
+                      "type": "string"
+                    },
+                    "identity_address": {
+                      "type": "string"
+                    },
+                    "vdxf_key": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object"
+                    },
+                    "block_height": {
+                      "type": "number"
+                    },
+                    "txid": {
+                      "type": "string"
+                    },
+                    "updated_at": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Identity or content key not found"
+          },
+          "429": {
+            "description": "Too many requests"
+          }
+        },
+        "tags": [
+          "Identities"
+        ]
+      }
+    },
     "/tv/config": {
       "get": {
         "operationId": "TvController_getConfig",
